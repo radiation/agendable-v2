@@ -1,0 +1,49 @@
+services:
+  traefik:
+    image: traefik:v2.4
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--entrypoints.web.address=:80"
+    ports:
+      - "80:80"
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - web
+
+  user_service:
+    build:
+      context: ./user_service
+    command: uvicorn main:app --host 0.0.0.0 --port 8000
+    ports:
+      - "8000:8000"
+    labels:
+      - "traefik.http.routers.user_service.rule=Host(`user.localhost`)"
+      - "traefik.http.services.user_service.loadbalancer.server.port=8000"
+    networks:
+      - web
+
+  meeting_service:
+    build:
+      context: ./meeting_service
+    command: uvicorn main:app --host 0.0.0.0 --port 8001
+    ports:
+      - "8001:8001"
+    labels:
+      - "traefik.http.routers.meeting_service.rule=Host(`meeting.localhost`)"
+      - "traefik.http.services.meeting_service.loadbalancer.server.port=8001"
+    networks:
+      - web
+
+  rabbitmq:
+    image: "rabbitmq:3-management"
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+    networks:
+      - web
+
+networks:
+  web:
