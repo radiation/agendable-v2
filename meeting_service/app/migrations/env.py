@@ -1,24 +1,31 @@
 import os
-from sqlalchemy import engine_from_config
-from sqlalchemy import pool
+
 from alembic import context
 from app.models import metadata
+from sqlalchemy import engine_from_config, pool
 
 config = context.config
 
-DATABASE_URL = os.getenv('DATABASE_URL', 'postgresql://user:password@postgres:5432/meeting_db')
-config.set_main_option('sqlalchemy.url', DATABASE_URL)
+DATABASE_URL = os.getenv(
+    "DATABASE_URL", "postgresql://user:password@postgres:5432/meeting_db"
+)
+config.set_main_option("sqlalchemy.url", DATABASE_URL)
 
 target_metadata = metadata
+
 
 def run_migrations_offline():
     url = config.get_main_option("sqlalchemy.url")
     context.configure(
-        url=url, target_metadata=target_metadata, literal_binds=True, dialect_opts={"paramstyle": "named"},
+        url=url,
+        target_metadata=target_metadata,
+        literal_binds=True,
+        dialect_opts={"paramstyle": "named"},
     )
 
     with context.begin_transaction():
         context.run_migrations()
+
 
 def run_migrations_online():
     connectable = engine_from_config(
@@ -32,6 +39,7 @@ def run_migrations_online():
 
         with context.begin_transaction():
             context.run_migrations()
+
 
 if context.is_offline_mode():
     run_migrations_offline()

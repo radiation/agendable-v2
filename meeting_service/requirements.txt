@@ -6,3 +6,7 @@ psycopg2-binary
 pydantic
 asyncpg
 alembic
+pre-commit
+black
+isort
+ruff

@@ -8,3 +8,7 @@ asyncpg
 passlib[bcrypt]
 python-jose
 alembic
+pre-commit
+black
+isort
+ruff
