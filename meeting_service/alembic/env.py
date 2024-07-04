@@ -1,27 +1,21 @@
-import os
+from __future__ import with_statement
+
+from logging.config import fileConfig
 
 from alembic import context
-from app.models import metadata
+from app.models import Base
 from sqlalchemy import engine_from_config, pool
 
 config = context.config
 
-DATABASE_URL = os.getenv(
-    "DATABASE_URL", "postgresql://user:password@postgres:5432/meeting_db"
-)
-config.set_main_option("sqlalchemy.url", DATABASE_URL)
+fileConfig(config.config_file_name)
 
-target_metadata = metadata
+target_metadata = Base.metadata
 
 
 def run_migrations_offline():
     url = config.get_main_option("sqlalchemy.url")
-    context.configure(
-        url=url,
-        target_metadata=target_metadata,
-        literal_binds=True,
-        dialect_opts={"paramstyle": "named"},
-    )
+    context.configure(url=url, target_metadata=target_metadata, literal_binds=True)
 
     with context.begin_transaction():
         context.run_migrations()
