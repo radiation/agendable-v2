@@ -4,5 +4,7 @@ sqlalchemy
 databases
 psycopg2-binary
 pydantic
+asyncpg
 passlib[bcrypt]
 python-jose
+alembic

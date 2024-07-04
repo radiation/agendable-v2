@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   traefik:
     image: traefik:v2.4
@@ -19,11 +21,16 @@ services:
     command: uvicorn main:app --host 0.0.0.0 --port 8000
     ports:
       - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://user:password@postgres:5432/user_db
     labels:
       - "traefik.http.routers.user_service.rule=Host(`user.localhost`)"
       - "traefik.http.services.user_service.loadbalancer.server.port=8000"
     networks:
       - web
+      - postgres
+    depends_on:
+      - postgres
 
   meeting_service:
     build:
@@ -31,11 +38,29 @@ services:
     command: uvicorn main:app --host 0.0.0.0 --port 8001
     ports:
       - "8001:8001"
+    environment:
+      - DATABASE_URL=postgresql://user:password@postgres:5432/meeting_db
     labels:
       - "traefik.http.routers.meeting_service.rule=Host(`meeting.localhost`)"
       - "traefik.http.services.meeting_service.loadbalancer.server.port=8001"
     networks:
       - web
+      - postgres
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: user_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - postgres
 
   rabbitmq:
     image: "rabbitmq:3-management"
@@ -47,3 +72,7 @@ services:
 
 networks:
   web:
+  postgres:
+
+volumes:
+  postgres_data:
