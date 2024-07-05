@@ -1,3 +1,4 @@
+from db import Base
 from sqlalchemy import (
     Boolean,
     Column,
@@ -9,8 +10,6 @@ from sqlalchemy import (
     func,
 )
 from sqlalchemy.orm import relationship
-
-from .database import Base
 
 
 class Meeting(Base):

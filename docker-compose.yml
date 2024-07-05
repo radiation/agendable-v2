@@ -23,9 +23,9 @@ services:
       - DATABASE_URL=postgresql://user:password@postgres:5432/user_db
     volumes:
       - ./user_service/app:/app
-    labels:
-      - "traefik.http.routers.user_service.rule=Host(`user.localhost`)"
-      - "traefik.http.services.user_service.loadbalancer.server.port=8000"
+    depends_on:
+      - rabbitmq
+      - postgres
     networks:
       - web
       - postgres
@@ -40,9 +40,9 @@ services:
       - DATABASE_URL=postgresql://user:password@postgres:5432/meeting_db
     volumes:
       - ./meeting_service/app:/app
-    labels:
-      - "traefik.http.routers.meeting_service.rule=Host(`meeting.localhost`)"
-      - "traefik.http.services.meeting_service.loadbalancer.server.port=8001"
+    depends_on:
+      - rabbitmq
+      - postgres
     networks:
       - web
       - postgres

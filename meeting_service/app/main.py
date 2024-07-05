@@ -1,17 +1,16 @@
 from contextlib import asynccontextmanager
 
 import databases
+import sqlalchemy
 from alembic import command
 from alembic.config import Config
 from fastapi import FastAPI
-from sqlalchemy import MetaData
-
-from .routers import meeting
+from routers import meeting
 
 DATABASE_URL = "postgresql://user:password@postgres:5432/meeting_db"
 
 database = databases.Database(DATABASE_URL)
-metadata = MetaData()
+metadata = sqlalchemy.MetaData()
 
 
 @asynccontextmanager
@@ -20,7 +19,7 @@ async def lifespan(app: FastAPI):
     await database.connect()
 
     # Run Alembic migrations
-    alembic_cfg = Config("app/alembic.ini")
+    alembic_cfg = Config("/migrations/alembic.ini")
     command.upgrade(alembic_cfg, "head")
 
     yield
@@ -31,9 +30,9 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
-app.include_router(meeting.router, prefix="/api")
+app.include_router(meeting.router)
 
 
 @app.get("/")
 async def root():
-    return {"message": "User Service"}
+    return {"message": "Meeting Service"}

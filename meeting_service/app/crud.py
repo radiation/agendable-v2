@@ -1,6 +1,6 @@
+import models
+import schemas
 from sqlalchemy.orm import Session
-
-from . import models, schemas
 
 
 def get_meeting(db: Session, meeting_id: int):
