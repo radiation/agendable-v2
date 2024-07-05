@@ -8,6 +8,8 @@ asyncpg
 passlib[bcrypt]
 python-jose
 alembic
+authlib
+python-dotenv
 pre-commit
 black
 isort
