@@ -7,7 +7,6 @@ from app.models import Base
 from sqlalchemy import engine_from_config, pool
 
 config = context.config
-
 fileConfig(config.config_file_name)
 
 target_metadata = Base.metadata

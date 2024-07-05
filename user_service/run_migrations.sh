@@ -3,16 +3,17 @@
 # Function to generate a new migration
 generate_migration() {
   local message=$1
-  local db_url=$2
 
-  alembic -c /migrations/alembic.ini revision --autogenerate -m "$message"
+  # Set database URL as an environment variable
+  export ALEMBIC_DATABASE_URL=$db_url
+  alembic -c ./alembic/alembic.ini revision --autogenerate -m "$message"
 }
 
 # Function to apply migrations
 apply_migrations() {
-  local db_url=$1
-
-  alembic -c /migrations/alembic.ini upgrade head
+  # Set database URL as an environment variable
+  export ALEMBIC_DATABASE_URL=$db_url
+  alembic -c ./alembic/alembic.ini upgrade head
 }
 
 # Main script
@@ -39,9 +40,9 @@ if [ "$command" = "generate" ]; then
     exit 1
   fi
   message=$2
-  generate_migration "$message" $db_url
+  generate_migration "$message"
 elif [ "$command" = "apply" ]; then
-  apply_migrations $db_url
+  apply_migrations
 else
   echo "Unknown command: $command"
   exit 1

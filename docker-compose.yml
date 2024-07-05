@@ -21,6 +21,8 @@ services:
       - "8000:8000"
     environment:
       - DATABASE_URL=postgresql://user:password@postgres:5432/user_db
+    env_file:
+      - .env
     volumes:
       - ./meeting_service/app:/app
     depends_on:
@@ -38,6 +40,8 @@ services:
       - "8001:8001"
     environment:
       - DATABASE_URL=postgresql://user:password@postgres:5432/meeting_db
+    env_file:
+      - .env
     volumes:
       - ./meeting_service/app:/app
     depends_on:
