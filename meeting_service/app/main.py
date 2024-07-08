@@ -5,7 +5,7 @@ import sqlalchemy
 from alembic import command
 from alembic.config import Config
 from fastapi import FastAPI
-from routers import meeting
+from routers import meeting, meeting_attendees, meeting_tasks, tasks
 
 DATABASE_URL = "postgresql://user:password@postgres:5432/meeting_db"
 
@@ -31,6 +31,13 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan)
 
 app.include_router(meeting.router)
+app.include_router(tasks.router, prefix="/tasks", tags=["tasks"])
+app.include_router(
+    meeting_tasks.router, prefix="/meeting_tasks", tags=["meeting_tasks"]
+)
+app.include_router(
+    meeting_attendees.router, prefix="/meeting_attendees", tags=["meeting_attendees"]
+)
 
 
 @app.get("/")

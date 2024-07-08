@@ -3,17 +3,17 @@ from typing import List
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
-from .. import crud, database, schemas
+from .. import crud, db, schemas
 
 router = APIRouter()
 
 
 @router.get("/tasks/", response_model=List[schemas.Task])
-def read_tasks_by_user(user_id: int, db: Session = Depends(database.get_db)):
+def read_tasks_by_user(user_id: int, db: Session = Depends(db.get_db)):
     return crud.get_tasks_by_user(db, user_id=user_id)
 
 
 @router.post("/tasks/{task_id}/complete", status_code=200)
-def complete_task(task_id: int, db: Session = Depends(database.get_db)):
+def complete_task(task_id: int, db: Session = Depends(db.get_db)):
     crud.mark_task_complete(db, task_id=task_id)
     return {"message": "Task marked as complete"}

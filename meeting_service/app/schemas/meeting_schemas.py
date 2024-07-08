@@ -33,39 +33,3 @@ class Meeting(MeetingBase):
 
     class Config:
         orm_mode = True
-
-
-class TaskBase(BaseModel):
-    title: str
-    description: str
-    due_date: Optional[datetime]
-    completed: bool
-    completed_date: Optional[datetime]
-
-
-class TaskCreate(TaskBase):
-    pass
-
-
-class Task(TaskBase):
-    id: int
-    assignee_id: int
-
-    class Config:
-        orm_mode = True
-
-
-class MeetingTaskBase(BaseModel):
-    meeting_id: int
-    task_id: int
-
-
-class MeetingTaskCreate(MeetingTaskBase):
-    pass
-
-
-class MeetingTask(MeetingTaskBase):
-    id: int
-
-    class Config:
-        orm_mode = True
