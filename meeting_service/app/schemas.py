@@ -1,63 +1,71 @@
 from datetime import datetime
 from typing import Optional
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel
 
 
 class MeetingRecurrenceBase(BaseModel):
-    # Define fields for MeetingRecurrence
-    pass
-
-
-class MeetingRecurrence(MeetingRecurrenceBase):
-    id: int
-
-    class Config:
-        orm_mode = True
+    frequency: str
+    week_day: Optional[int]
+    month_week: Optional[int]
+    interval: int
+    end_recurrence: Optional[datetime]
 
 
 class MeetingBase(BaseModel):
-    title: str = Field(default="", max_length=100)
+    title: str
     start_date: datetime
     end_date: datetime
-    duration: int = Field(default=30)
-    location: str = Field(default="", max_length=100)
-    notes: str = Field(default="")
-    num_reschedules: int = Field(default=0)
-    reminder_sent: bool = Field(default=False)
-
-    @validator("end_date")
-    def end_date_must_be_after_start_date(cls, v, values, **kwargs):
-        if "start_date" in values and v < values["start_date"]:
-            raise ValueError("End date must be after start date")
-        return v
+    duration: int
+    location: str
+    notes: str
+    num_reschedules: int
+    reminder_sent: bool
 
 
 class MeetingCreate(MeetingBase):
-    recurrence_id: Optional[int]
-
-
-class MeetingUpdate(MeetingBase):
     pass
 
 
-class MeetingInDBBase(MeetingBase):
+class Meeting(MeetingBase):
     id: int
-    created_at: datetime
-    recurrence: Optional[MeetingRecurrence]
+    recurrence: Optional[MeetingRecurrenceBase]
 
     class Config:
         orm_mode = True
 
 
-class Meeting(MeetingInDBBase):
-    recurrence_id: Optional[int]
-    recurrence: Optional[MeetingRecurrence]
+class TaskBase(BaseModel):
+    title: str
+    description: str
+    due_date: Optional[datetime]
+    completed: bool
+    completed_date: Optional[datetime]
 
 
-class MeetingRecurrenceCreate(MeetingRecurrenceBase):
+class TaskCreate(TaskBase):
     pass
 
 
-class MeetingRecurrenceUpdate(MeetingRecurrenceBase):
+class Task(TaskBase):
+    id: int
+    assignee_id: int
+
+    class Config:
+        orm_mode = True
+
+
+class MeetingTaskBase(BaseModel):
+    meeting_id: int
+    task_id: int
+
+
+class MeetingTaskCreate(MeetingTaskBase):
     pass
+
+
+class MeetingTask(MeetingTaskBase):
+    id: int
+
+    class Config:
+        orm_mode = True

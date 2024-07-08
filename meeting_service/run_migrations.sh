@@ -6,14 +6,14 @@ generate_migration() {
 
   # Set database URL as an environment variable
   export ALEMBIC_DATABASE_URL=$db_url
-  alembic -c ./alembic/alembic.ini revision --autogenerate -m "$message"
+  alembic -c ./alembic.ini revision --autogenerate -m "$message"
 }
 
 # Function to apply migrations
 apply_migrations() {
   # Set database URL as an environment variable
   export ALEMBIC_DATABASE_URL=$db_url
-  alembic -c ./alembic/alembic.ini upgrade head
+  alembic -c ./alembic.ini upgrade head
 }
 
 # Main script
