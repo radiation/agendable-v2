@@ -1,16 +1,16 @@
 from pydantic import BaseModel
 
 
-class MeetingTaskBase(BaseModel):
+class MeetingAttendeeBase(BaseModel):
     meeting_id: int
     task_id: int
 
 
-class MeetingTaskCreate(MeetingTaskBase):
+class MeetingAttendeeCreate(MeetingAttendeeBase):
     pass
 
 
-class MeetingTask(MeetingTaskBase):
+class MeetingAttendee(MeetingAttendeeBase):
     id: int
 
     class Config:

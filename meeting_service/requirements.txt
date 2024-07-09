@@ -10,3 +10,5 @@ pre-commit
 black
 isort
 ruff
+pytest
+async-asgi-testclient

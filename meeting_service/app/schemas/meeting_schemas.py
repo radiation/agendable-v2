@@ -2,14 +2,7 @@ from datetime import datetime
 from typing import Optional
 
 from pydantic import BaseModel
-
-
-class MeetingRecurrenceBase(BaseModel):
-    frequency: str
-    week_day: Optional[int]
-    month_week: Optional[int]
-    interval: int
-    end_recurrence: Optional[datetime]
+from schemas.meeting_recurrence_schema import MeetingRecurrenceBase
 
 
 class MeetingBase(BaseModel):
@@ -24,6 +17,10 @@ class MeetingBase(BaseModel):
 
 
 class MeetingCreate(MeetingBase):
+    pass
+
+
+class MeetingUpdate(MeetingBase):
     pass
 
 

@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   traefik:
     image: traefik:v2.4
@@ -5,11 +7,13 @@ services:
       - "--api.insecure=true"
       - "--providers.docker=true"
       - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
     ports:
-      - "80:80"
-      - "8080:8080"
+      - "80:80"   # The HTTP port
+      - "8080:8080"  # The Web UI (enabled by --api.insecure)
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
+      - "/var/run/docker.sock:/var/run/docker.sock"
+      - "./traefik/traefik.yml:/traefik.yml"
     networks:
       - web
 
@@ -17,39 +21,39 @@ services:
     build:
       context: ./user_service
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
-    ports:
-      - "8000:8000"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.user-service.rule=Host(`user.local`)"
+      - "traefik.http.services.user-service.loadbalancer.server.port=8000"
     environment:
       - DATABASE_URL=postgresql://user:password@postgres:5432/user_db
     env_file:
       - .env
-    volumes:
-      - ./meeting_service/app:/app
     depends_on:
+      - traefik
       - rabbitmq
       - postgres
     networks:
       - web
-      - postgres
 
   meeting_service:
     build:
       context: ./meeting_service
     command: uvicorn main:app --host 0.0.0.0 --port 8001 --reload
-    ports:
-      - "8001:8001"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.meeting-service.rule=Host(`meeting.local`)"
+      - "traefik.http.services.meeting-service.loadbalancer.server.port=8001"
     environment:
       - DATABASE_URL=postgresql://user:password@postgres:5432/meeting_db
     env_file:
       - .env
-    volumes:
-      - ./meeting_service/app:/app
     depends_on:
+      - traefik
       - rabbitmq
       - postgres
     networks:
       - web
-      - postgres
 
   postgres:
     image: postgres:13
@@ -57,8 +61,6 @@ services:
       POSTGRES_USER: user
       POSTGRES_PASSWORD: password
       POSTGRES_DB: user_db
-    ports:
-      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:

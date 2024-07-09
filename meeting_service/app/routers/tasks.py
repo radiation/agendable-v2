@@ -1,9 +1,10 @@
 from typing import List
 
+import crud
+import db
 from fastapi import APIRouter, Depends
+from schemas import task_schemas as schemas
 from sqlalchemy.orm import Session
-
-from .. import crud, db, schemas
 
 router = APIRouter()
 

@@ -1,7 +1,9 @@
+import crud
+import db
 from fastapi import APIRouter, Depends, HTTPException
+from schemas import meeting_recurrence_schema as recurrence_schemas
+from schemas import meeting_schemas as schemas
 from sqlalchemy.orm import Session
-
-from .. import crud, db, schemas
 
 router = APIRouter()
 
@@ -36,7 +38,9 @@ def delete_meeting(meeting_id: int, db: Session = Depends(db.get_db)):
     return crud.delete_meeting(db=db, meeting_id=meeting_id)
 
 
-@router.get("/meetings/recurrence/", response_model=schemas.MeetingRecurrence)
+@router.get(
+    "/meetings/recurrence/", response_model=recurrence_schemas.MeetingRecurrence
+)
 def get_meeting_recurrence(meeting_id: int, db: Session = Depends(db.get_db)):
     recurrence = crud.get_meeting_recurrence(db=db, meeting_id=meeting_id)
     if recurrence is None:
