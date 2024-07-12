@@ -9,6 +9,14 @@ from sqlalchemy.orm import Session
 router = APIRouter()
 
 
+# Create a new meeting task
+@router.post("/", response_model=schemas.MeetingTask)
+def create_meeting_task(
+    task: schemas.MeetingTaskCreate, db: Session = Depends(db.get_db)
+) -> schemas.MeetingTask:
+    return crud.create_meeting_task(db=db, task=task)
+
+
 # List all meeting tasks
 @router.get("/", response_model=List[schemas.MeetingTask])
 def read_meeting_tasks(
@@ -23,14 +31,6 @@ def get_meeting_task(
     task_id: int, db: Session = Depends(db.get_db)
 ) -> schemas.MeetingTask:
     return crud.get_meeting_task(db=db, task_id=task_id)
-
-
-# Create a new meeting task
-@router.post("/", response_model=schemas.MeetingTask)
-def create_meeting_task(
-    task: schemas.MeetingTaskCreate, db: Session = Depends(db.get_db)
-) -> schemas.MeetingTask:
-    return crud.create_meeting_task(db=db, task=task)
 
 
 # Update an existing meeting task
