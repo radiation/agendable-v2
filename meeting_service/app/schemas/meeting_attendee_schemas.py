@@ -10,6 +10,10 @@ class MeetingAttendeeCreate(MeetingAttendeeBase):
     pass
 
 
+class MeetingAttendeeUpdate(MeetingAttendeeBase):
+    pass
+
+
 class MeetingAttendee(MeetingAttendeeBase):
     id: int
 

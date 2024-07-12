@@ -5,6 +5,16 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
 
+async def create_meeting(
+    db: AsyncSession, meeting: meeting_schemas.MeetingCreate
+) -> Meeting:
+    db_meeting = Meeting(**meeting.model_dump)
+    db.add(db_meeting)
+    await db.commit()
+    await db.refresh(db_meeting)
+    return db_meeting
+
+
 async def get_meetings(
     db: AsyncSession, skip: int = 0, limit: int = 10
 ) -> list[Meeting]:
@@ -15,16 +25,6 @@ async def get_meeting(db: AsyncSession, meeting_id: int) -> Meeting:
     result = await db.execute(select(Meeting).filter(Meeting.id == meeting_id))
     meeting = result.scalars().first()
     return meeting
-
-
-async def create_meeting(
-    db: AsyncSession, meeting: meeting_schemas.MeetingCreate
-) -> Meeting:
-    db_meeting = Meeting(**meeting.model_dump)
-    db.add(db_meeting)
-    await db.commit()
-    await db.refresh(db_meeting)
-    return db_meeting
 
 
 async def update_meeting(
