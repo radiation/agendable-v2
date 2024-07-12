@@ -5,16 +5,16 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
 
-async def get_meeting(db: AsyncSession, meeting_id: int) -> Meeting:
-    result = await db.execute(select(Meeting).filter(Meeting.id == meeting_id))
-    meeting = result.scalars().first()
-    return meeting
-
-
 async def get_meetings(
     db: AsyncSession, skip: int = 0, limit: int = 10
 ) -> list[Meeting]:
     return await db.query(Meeting).offset(skip).limit(limit).all()
+
+
+async def get_meeting(db: AsyncSession, meeting_id: int) -> Meeting:
+    result = await db.execute(select(Meeting).filter(Meeting.id == meeting_id))
+    meeting = result.scalars().first()
+    return meeting
 
 
 async def create_meeting(
@@ -40,33 +40,30 @@ async def update_meeting(
 
 
 async def delete_meeting(db: AsyncSession, meeting_id: int) -> Meeting:
-    # First, await the retrieval of the meeting
     db_meeting = await get_meeting(db, meeting_id)
     if db_meeting:
         try:
             db.delete(db_meeting)
             await db.commit()
         except SQLAlchemyError as e:
-            # Optionally handle specific database errors, e.g., rollback, logging, etc.
             await db.rollback()
             raise e
         return db_meeting
     else:
-        # Raise an exception or return None if the meeting doesn't exist
         return None
 
 
-def get_meeting_recurrence_by_meeting(
+async def get_meeting_recurrence_by_meeting(
     db: AsyncSession, meeting_id: int
 ) -> MeetingRecurrence:
-    return (
+    return await (
         db.query(MeetingRecurrence)
         .filter(MeetingRecurrence.meetings.any(id=meeting_id))
         .first()
     )
 
 
-def get_next_occurrence(db: AsyncSession, meeting_id: int) -> Meeting:
+async def get_next_occurrence(db: AsyncSession, meeting_id: int) -> Meeting:
     meeting = get_meeting(db, meeting_id)
     if meeting:
         pass
