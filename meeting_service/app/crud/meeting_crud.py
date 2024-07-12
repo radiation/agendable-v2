@@ -1,75 +1,90 @@
-import models
-import schemas.meeting_schemas as meeting_schemas
-from sqlalchemy.orm import Session
+from models import Meeting, MeetingRecurrence
+from schemas import meeting_schemas
+from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.future import select
 
 
-def get_meeting(db: Session, meeting_id: int) -> models.Meeting:
-    return db.query(models.Meeting).filter(models.Meeting.id == meeting_id).first()
+async def get_meeting(db: AsyncSession, meeting_id: int) -> Meeting:
+    result = await db.execute(select(Meeting).filter(Meeting.id == meeting_id))
+    meeting = result.scalars().first()
+    return meeting
 
 
-def get_meetings(db: Session, skip: int = 0, limit: int = 10) -> list[models.Meeting]:
-    return db.query(models.Meeting).offset(skip).limit(limit).all()
+async def get_meetings(
+    db: AsyncSession, skip: int = 0, limit: int = 10
+) -> list[Meeting]:
+    return await db.query(Meeting).offset(skip).limit(limit).all()
 
 
-def create_meeting(
-    db: Session, meeting: meeting_schemas.MeetingCreate
-) -> models.Meeting:
-    db_meeting = models.Meeting(**meeting.model_dump)
+async def create_meeting(
+    db: AsyncSession, meeting: meeting_schemas.MeetingCreate
+) -> Meeting:
+    db_meeting = Meeting(**meeting.model_dump)
     db.add(db_meeting)
-    db.commit()
-    db.refresh(db_meeting)
+    await db.commit()
+    await db.refresh(db_meeting)
     return db_meeting
 
 
-def update_meeting(
-    db: Session, meeting_id: int, meeting: meeting_schemas.MeetingUpdate
-) -> models.Meeting:
+async def update_meeting(
+    db: AsyncSession, meeting_id: int, meeting: meeting_schemas.MeetingUpdate
+) -> Meeting:
     db_meeting = get_meeting(db, meeting_id)
     if db_meeting:
         for key, value in meeting.model_dump(exclude_unset=True).items():
             setattr(db_meeting, key, value)
-        db.commit()
-        db.refresh(db_meeting)
+        await db.commit()
+        await db.refresh(db_meeting)
     return db_meeting
 
 
-def delete_meeting(db: Session, meeting_id: int) -> models.Meeting:
-    db_meeting = get_meeting(db, meeting_id)
+async def delete_meeting(db: AsyncSession, meeting_id: int) -> Meeting:
+    # First, await the retrieval of the meeting
+    db_meeting = await get_meeting(db, meeting_id)
     if db_meeting:
-        db.delete(db_meeting)
-        db.commit()
-    return db_meeting
+        try:
+            db.delete(db_meeting)
+            await db.commit()
+        except SQLAlchemyError as e:
+            # Optionally handle specific database errors, e.g., rollback, logging, etc.
+            await db.rollback()
+            raise e
+        return db_meeting
+    else:
+        # Raise an exception or return None if the meeting doesn't exist
+        return None
 
 
 def get_meeting_recurrence_by_meeting(
-    db: Session, meeting_id: int
-) -> models.MeetingRecurrence:
+    db: AsyncSession, meeting_id: int
+) -> MeetingRecurrence:
     return (
-        db.query(models.MeetingRecurrence)
-        .filter(models.MeetingRecurrence.meetings.any(id=meeting_id))
+        db.query(MeetingRecurrence)
+        .filter(MeetingRecurrence.meetings.any(id=meeting_id))
         .first()
     )
 
 
-def get_next_occurrence(db: Session, meeting_id: int) -> models.Meeting:
+def get_next_occurrence(db: AsyncSession, meeting_id: int) -> Meeting:
     meeting = get_meeting(db, meeting_id)
     if meeting:
         pass
 
 
-def complete_meeting(db: Session, meeting_id: int) -> models.Meeting:
+def complete_meeting(db: AsyncSession, meeting_id: int) -> Meeting:
     meeting = get_meeting(db, meeting_id)
     if meeting:
         # TODO: Implement this
         return meeting
 
 
-def add_recurrence(db: Session, meeting_id: int, recurrence_id: int) -> models.Meeting:
+def add_recurrence(db: AsyncSession, meeting_id: int, recurrence_id: int) -> Meeting:
     meeting = get_meeting(db, meeting_id)
     if meeting:
         recurrence = (
-            db.query(models.MeetingRecurrence)
-            .filter(models.MeetingRecurrence.id == recurrence_id)
+            db.query(MeetingRecurrence)
+            .filter(MeetingRecurrence.id == recurrence_id)
             .first()
         )
         if recurrence:

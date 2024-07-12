@@ -7,21 +7,21 @@ from sqlalchemy.orm import Session
 router = APIRouter()
 
 
-@router.post("/meetings/", response_model=meeting_schemas.Meeting)
+@router.post("/", response_model=meeting_schemas.Meeting)
 def create_meeting(
     meeting: meeting_schemas.MeetingCreate, db: Session = Depends(db.get_db)
 ) -> meeting_schemas.Meeting:
     return crud.create_meeting(db=db, meeting=meeting)
 
 
-@router.get("/meetings/", response_model=list[meeting_schemas.Meeting])
+@router.get("/", response_model=list[meeting_schemas.Meeting])
 def read_meetings(
     skip: int = 0, limit: int = 10, db: Session = Depends(db.get_db)
 ) -> list[meeting_schemas.Meeting]:
     return crud.get_meetings(db=db, skip=skip, limit=limit)
 
 
-@router.get("/meetings/{meeting_id}", response_model=meeting_schemas.Meeting)
+@router.get("/{meeting_id}", response_model=meeting_schemas.Meeting)
 def read_meeting(
     meeting_id: int, db: Session = Depends(db.get_db)
 ) -> meeting_schemas.Meeting:
@@ -31,7 +31,7 @@ def read_meeting(
     return db_meeting
 
 
-@router.put("/meetings/{meeting_id}", response_model=meeting_schemas.Meeting)
+@router.put("/{meeting_id}", response_model=meeting_schemas.Meeting)
 def update_meeting(
     meeting_id: int,
     meeting: meeting_schemas.MeetingUpdate,
@@ -40,16 +40,14 @@ def update_meeting(
     return crud.update_meeting(db=db, meeting_id=meeting_id, meeting=meeting)
 
 
-@router.delete("/meetings/{meeting_id}", response_model=meeting_schemas.Meeting)
+@router.delete("/{meeting_id}", response_model=meeting_schemas.Meeting)
 def delete_meeting(
     meeting_id: int, db: Session = Depends(db.get_db)
 ) -> meeting_schemas.Meeting:
     return crud.delete_meeting(db=db, meeting_id=meeting_id)
 
 
-@router.get(
-    "/meetings/recurrence/", response_model=meeting_recurrence_schemas.MeetingRecurrence
-)
+@router.get("/recurrence/", response_model=meeting_recurrence_schemas.MeetingRecurrence)
 def get_meeting_recurrence(
     meeting_id: int, db: Session = Depends(db.get_db)
 ) -> meeting_recurrence_schemas.MeetingRecurrence:
@@ -59,7 +57,7 @@ def get_meeting_recurrence(
     return recurrence
 
 
-@router.get("/meetings/next_occurrence/", response_model=meeting_schemas.Meeting)
+@router.get("/next_occurrence/", response_model=meeting_schemas.Meeting)
 def get_next_occurrence(
     meeting_id: int, db: Session = Depends(db.get_db)
 ) -> meeting_schemas.Meeting:
@@ -69,7 +67,7 @@ def get_next_occurrence(
     return next_occurrence
 
 
-@router.post("/meetings/{meeting_id}/complete/", response_model=meeting_schemas.Meeting)
+@router.post("/{meeting_id}/complete/", response_model=meeting_schemas.Meeting)
 def complete_meeting(
     meeting_id: int, db: Session = Depends(db.get_db)
 ) -> meeting_schemas.Meeting:
@@ -77,9 +75,7 @@ def complete_meeting(
     return {"message": "Meeting completed"}
 
 
-@router.post(
-    "/meetings/{meeting_id}/add_recurrence/", response_model=meeting_schemas.Meeting
-)
+@router.post("/{meeting_id}/add_recurrence/", response_model=meeting_schemas.Meeting)
 def add_recurrence(
     meeting_id: int, recurrence_id: int, db: Session = Depends(db.get_db)
 ) -> meeting_schemas.Meeting:

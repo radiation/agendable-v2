@@ -10,6 +10,10 @@ class MeetingTaskCreate(MeetingTaskBase):
     pass
 
 
+class MeetingTaskUpdate(MeetingTaskBase):
+    pass
+
+
 class MeetingTask(MeetingTaskBase):
     id: int
 

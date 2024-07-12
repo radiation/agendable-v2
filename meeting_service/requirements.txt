@@ -2,7 +2,6 @@ fastapi
 uvicorn[standard]
 sqlalchemy
 databases
-psycopg2-binary
 pydantic
 asyncpg
 alembic

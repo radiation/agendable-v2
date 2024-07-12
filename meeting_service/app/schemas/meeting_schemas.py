@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Optional
 
 from pydantic import BaseModel
-from schemas.meeting_recurrence_schema import MeetingRecurrenceBase
+from schemas.meeting_recurrence_schemas import MeetingRecurrenceBase
 
 
 class MeetingBase(BaseModel):

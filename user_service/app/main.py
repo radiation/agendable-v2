@@ -7,7 +7,7 @@ from alembic.config import Config
 from fastapi import FastAPI
 from routers import user
 
-DATABASE_URL = "postgresql://user:password@postgres:5432/user_db"
+DATABASE_URL = "postgresql+asyncpg://user:password@postgres:5432/user_db"
 
 database = databases.Database(DATABASE_URL)
 metadata = sqlalchemy.MetaData()
