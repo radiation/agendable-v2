@@ -1,17 +1,19 @@
 import models
-import schemas.meeting_schemas as schemas
+import schemas.meeting_schemas as meeting_schemas
 from sqlalchemy.orm import Session
 
 
-def get_meeting(db: Session, meeting_id: int):
+def get_meeting(db: Session, meeting_id: int) -> models.Meeting:
     return db.query(models.Meeting).filter(models.Meeting.id == meeting_id).first()
 
 
-def get_meetings(db: Session, skip: int = 0, limit: int = 10):
+def get_meetings(db: Session, skip: int = 0, limit: int = 10) -> list[models.Meeting]:
     return db.query(models.Meeting).offset(skip).limit(limit).all()
 
 
-def create_meeting(db: Session, meeting: schemas.MeetingCreate) -> models.Meeting:
+def create_meeting(
+    db: Session, meeting: meeting_schemas.MeetingCreate
+) -> models.Meeting:
     db_meeting = models.Meeting(**meeting.model_dump)
     db.add(db_meeting)
     db.commit()
@@ -20,7 +22,7 @@ def create_meeting(db: Session, meeting: schemas.MeetingCreate) -> models.Meetin
 
 
 def update_meeting(
-    db: Session, meeting_id: int, meeting: schemas.MeetingUpdate
+    db: Session, meeting_id: int, meeting: meeting_schemas.MeetingUpdate
 ) -> models.Meeting:
     db_meeting = get_meeting(db, meeting_id)
     if db_meeting:
@@ -55,14 +57,14 @@ def get_next_occurrence(db: Session, meeting_id: int) -> models.Meeting:
         pass
 
 
-def complete_meeting(db: Session, meeting_id: int):
+def complete_meeting(db: Session, meeting_id: int) -> models.Meeting:
     meeting = get_meeting(db, meeting_id)
     if meeting:
         # TODO: Implement this
         return meeting
 
 
-def add_recurrence(db: Session, meeting_id: int, recurrence_id: int):
+def add_recurrence(db: Session, meeting_id: int, recurrence_id: int) -> models.Meeting:
     meeting = get_meeting(db, meeting_id)
     if meeting:
         recurrence = (

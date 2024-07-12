@@ -22,3 +22,11 @@ class Task(TaskBase):
 
     class Config:
         orm_mode = True
+
+
+class TaskResponse(TaskBase):
+    id: int
+    user_id: int
+
+    class Config:
+        orm_mode = True
