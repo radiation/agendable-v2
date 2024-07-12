@@ -1,5 +1,5 @@
 import models
-import schemas
+import schemas.meeting_schemas as schemas
 from sqlalchemy.orm import Session
 
 
@@ -11,25 +11,27 @@ def get_meetings(db: Session, skip: int = 0, limit: int = 10):
     return db.query(models.Meeting).offset(skip).limit(limit).all()
 
 
-def create_meeting(db: Session, meeting: schemas.MeetingCreate):
-    db_meeting = models.Meeting(**meeting.dict())
+def create_meeting(db: Session, meeting: schemas.MeetingCreate) -> models.Meeting:
+    db_meeting = models.Meeting(**meeting.model_dump)
     db.add(db_meeting)
     db.commit()
     db.refresh(db_meeting)
     return db_meeting
 
 
-def update_meeting(db: Session, meeting_id: int, meeting: schemas.MeetingUpdate):
+def update_meeting(
+    db: Session, meeting_id: int, meeting: schemas.MeetingUpdate
+) -> models.Meeting:
     db_meeting = get_meeting(db, meeting_id)
     if db_meeting:
-        for key, value in meeting.dict(exclude_unset=True).items():
+        for key, value in meeting.model_dump(exclude_unset=True).items():
             setattr(db_meeting, key, value)
         db.commit()
         db.refresh(db_meeting)
     return db_meeting
 
 
-def delete_meeting(db: Session, meeting_id: int):
+def delete_meeting(db: Session, meeting_id: int) -> models.Meeting:
     db_meeting = get_meeting(db, meeting_id)
     if db_meeting:
         db.delete(db_meeting)
@@ -37,7 +39,9 @@ def delete_meeting(db: Session, meeting_id: int):
     return db_meeting
 
 
-def get_meeting_recurrence_by_meeting(db: Session, meeting_id: int):
+def get_meeting_recurrence_by_meeting(
+    db: Session, meeting_id: int
+) -> models.MeetingRecurrence:
     return (
         db.query(models.MeetingRecurrence)
         .filter(models.MeetingRecurrence.meetings.any(id=meeting_id))
@@ -45,18 +49,17 @@ def get_meeting_recurrence_by_meeting(db: Session, meeting_id: int):
     )
 
 
-def get_next_occurrence(db: Session, meeting_id: int):
+def get_next_occurrence(db: Session, meeting_id: int) -> models.Meeting:
     meeting = get_meeting(db, meeting_id)
     if meeting:
-        # Implement your logic to get the next occurrence
         pass
 
 
 def complete_meeting(db: Session, meeting_id: int):
     meeting = get_meeting(db, meeting_id)
     if meeting:
-        # Implement your logic to complete the meeting
-        pass
+        # TODO: Implement this
+        return meeting
 
 
 def add_recurrence(db: Session, meeting_id: int, recurrence_id: int):

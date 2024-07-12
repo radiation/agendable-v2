@@ -29,6 +29,8 @@ services:
       - DATABASE_URL=postgresql://user:password@postgres:5432/user_db
     env_file:
       - .env
+    volumes:
+      - ./user_service/app:/app
     depends_on:
       - traefik
       - rabbitmq
@@ -48,6 +50,8 @@ services:
       - DATABASE_URL=postgresql://user:password@postgres:5432/meeting_db
     env_file:
       - .env
+    volumes:
+      - ./meeting_service/app:/app
     depends_on:
       - traefik
       - rabbitmq
