@@ -7,7 +7,7 @@ async def create_meeting_recurrence(
     db: AsyncSession,
     meeting_recurrence: meeting_recurrence_schemas.MeetingRecurrenceBase,
 ) -> models.MeetingRecurrence:
-    db_meeting_recurrence = models.MeetingRecurrence(**meeting_recurrence.model_dump)
+    db_meeting_recurrence = models.MeetingRecurrence(**meeting_recurrence.dict())
     db.add(db_meeting_recurrence)
     await db.commit()
     await db.refresh(db_meeting_recurrence)
@@ -41,7 +41,7 @@ async def update_meeting_recurrence(
         .first()
     )
     if db_meeting_recurrence:
-        for key, value in meeting_recurrence.model_dump(exclude_unset=True).items():
+        for key, value in meeting_recurrence.dict().items():
             setattr(db_meeting_recurrence, key, value)
         await db.commit()
         await db.refresh(db_meeting_recurrence)

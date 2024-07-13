@@ -8,7 +8,7 @@ from sqlalchemy.future import select
 async def create_meeting(
     db: AsyncSession, meeting: meeting_schemas.MeetingCreate
 ) -> Meeting:
-    db_meeting = Meeting(**meeting.model_dump)
+    db_meeting = Meeting(**meeting.dict())
     db.add(db_meeting)
     await db.commit()
     await db.refresh(db_meeting)
@@ -35,7 +35,7 @@ async def update_meeting(
 ) -> Meeting:
     db_meeting = get_meeting(db, meeting_id)
     if db_meeting:
-        for key, value in meeting.model_dump(exclude_unset=True).items():
+        for key, value in meeting.dict().items():
             setattr(db_meeting, key, value)
         await db.commit()
         await db.refresh(db_meeting)
