@@ -18,7 +18,10 @@ async def create_meeting(
 async def get_meetings(
     db: AsyncSession, skip: int = 0, limit: int = 10
 ) -> list[Meeting]:
-    return await db.query(Meeting).offset(skip).limit(limit).all()
+    stmt = select(Meeting).offset(skip).limit(limit)
+    result = await db.execute(stmt)
+    meetings = result.scalars().all()
+    return meetings
 
 
 async def get_meeting(db: AsyncSession, meeting_id: int) -> Meeting:
@@ -69,17 +72,22 @@ async def get_next_occurrence(db: AsyncSession, meeting_id: int) -> Meeting:
         pass
 
 
-def complete_meeting(db: AsyncSession, meeting_id: int) -> Meeting:
-    meeting = get_meeting(db, meeting_id)
+async def complete_meeting(db: AsyncSession, meeting_id: int) -> Meeting:
+    meeting = await get_meeting(db, meeting_id)
     if meeting:
-        # TODO: Implement this
+        # Update meeting status to completed
+        meeting.completed = True
+        await db.commit()
+        await db.refresh(meeting)
         return meeting
 
 
-def add_recurrence(db: AsyncSession, meeting_id: int, recurrence_id: int) -> Meeting:
-    meeting = get_meeting(db, meeting_id)
+async def add_recurrence(
+    db: AsyncSession, meeting_id: int, recurrence_id: int
+) -> Meeting:
+    meeting = await get_meeting(db, meeting_id)
     if meeting:
-        recurrence = (
+        recurrence = await (
             db.query(MeetingRecurrence)
             .filter(MeetingRecurrence.id == recurrence_id)
             .first()
@@ -89,4 +97,7 @@ def add_recurrence(db: AsyncSession, meeting_id: int, recurrence_id: int) -> Mee
             db.commit()
             db.refresh(meeting)
             return meeting
+        else:
+            # Create recurrence
+            pass
     return None

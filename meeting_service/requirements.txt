@@ -5,6 +5,7 @@ databases
 pydantic
 asyncpg
 alembic
+psycopg2-binary # Needed for alembic
 pre-commit
 black
 isort

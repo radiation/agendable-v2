@@ -16,6 +16,10 @@ class TaskCreate(TaskBase):
     pass
 
 
+class TaskUpdate(TaskBase):
+    pass
+
+
 class Task(TaskBase):
     id: int
     assignee_id: int

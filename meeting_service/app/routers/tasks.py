@@ -2,7 +2,7 @@ from typing import List
 
 import crud
 import db
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from schemas import task_schemas
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -58,9 +58,13 @@ async def read_tasks_by_user(
 
 
 # Mark a task as complete
-@router.post("/{task_id}/complete", status_code=200)
+@router.post("/{task_id}/complete", response_model=task_schemas.TaskUpdate)
 async def complete_task(
     task_id: int, db: AsyncSession = Depends(db.get_db)
-) -> dict[str, str]:
-    await crud.mark_task_complete(db, task_id=task_id)
-    return {"message": "Task marked as complete"}
+) -> task_schemas.TaskUpdate:
+    task = await crud.mark_task_complete(db, task_id=task_id)
+    if task is None:
+        raise HTTPException(status_code=404, detail="Task not found")
+    if task is False:
+        raise HTTPException(status_code=400, detail="Task already completed")
+    return task

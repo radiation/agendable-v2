@@ -26,9 +26,9 @@ command=$1
 
 # Determine the database URL based on the service directory
 if [[ "$PWD" == *"user_service"* ]]; then
-  db_url="postgresql://user:password@postgres:5432/user_db"
+  db_url="postgresql+asyncpg://agendable:agendable@postgres:5432/user_db"
 elif [[ "$PWD" == *"meeting_service"* ]]; then
-  db_url="postgresql://user:password@postgres:5432/meeting_db"
+  db_url="postgresql+asyncpg://agendable:agendable@postgres:5432/meeting_db"
 else
   echo "Unknown service directory: $PWD"
   exit 1

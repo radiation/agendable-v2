@@ -26,7 +26,7 @@ services:
       - "traefik.http.routers.user-service.rule=Host(`user.local`)"
       - "traefik.http.services.user-service.loadbalancer.server.port=8000"
     environment:
-      - DATABASE_URL=postgresql+asyncpg://user:password@postgres:5432/user_db
+      - DATABASE_URL=${USER_DB_URL}
     env_file:
       - .env
     volumes:
@@ -47,7 +47,7 @@ services:
       - "traefik.http.routers.meeting-service.rule=Host(`meeting.local`)"
       - "traefik.http.services.meeting-service.loadbalancer.server.port=8001"
     environment:
-      - DATABASE_URL=postgresql+asyncpg://user:password@postgres:5432/meeting_db
+      - DATABASE_URL=${MEETING_DB_URL}
     env_file:
       - .env
     volumes:
