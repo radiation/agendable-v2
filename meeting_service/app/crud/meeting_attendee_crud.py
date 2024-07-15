@@ -1,12 +1,14 @@
-import models
-import schemas.meeting_attendee_schemas as meeting_attendee_schemas
+from models import MeetingAttendee
+from schemas import meeting_attendee_schemas
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.future import select
 
 
 async def create_meeting_attendee(
     db: AsyncSession, attendee: meeting_attendee_schemas.MeetingAttendeeCreate
-) -> models.MeetingAttendee:
-    db_attendee = models.MeetingAttendee(**attendee.dict())
+) -> MeetingAttendee:
+    db_attendee = MeetingAttendee(**attendee.dict())
     db.add(db_attendee)
     await db.commit()
     await db.refresh(db_attendee)
@@ -15,25 +17,26 @@ async def create_meeting_attendee(
 
 async def get_meeting_attendees(
     db: AsyncSession, skip: int = 0, limit: int = 10
-) -> list[models.MeetingAttendee]:
-    return await db.query(models.MeetingAttendee).offset(skip).limit(limit).all()
+) -> list[MeetingAttendee]:
+    stmt = select(MeetingAttendee).offset(skip).limit(limit)
+    result = await db.execute(stmt)
+    attendees = result.scalars().all()
+    return attendees
 
 
-async def get_meeting_attendee(
-    db: AsyncSession, attendee_id: int
-) -> models.MeetingAttendee:
-    return await (
-        db.query(models.MeetingAttendee)
-        .filter(models.MeetingAttendee.id == attendee_id)
-        .first()
+async def get_meeting_attendee(db: AsyncSession, attendee_id: int) -> MeetingAttendee:
+    result = await db.execute(
+        select(MeetingAttendee).filter(MeetingAttendee.id == attendee_id)
     )
+    attendee = result.scalars().first()
+    return attendee
 
 
 async def update_meeting_attendee(
     db: AsyncSession,
     attendee_id: int,
     attendee: meeting_attendee_schemas.MeetingAttendeeUpdate,
-) -> models.MeetingAttendee:
+) -> MeetingAttendee:
     db_attendee = await get_meeting_attendee(db, attendee_id)
     if db_attendee:
         for key, value in attendee.dict(exclude_unset=True).items():
@@ -45,11 +48,15 @@ async def update_meeting_attendee(
 
 async def delete_meeting_attendee(
     db: AsyncSession, attendee_id: int
-) -> models.MeetingAttendee:
+) -> MeetingAttendee:
     db_attendee = await get_meeting_attendee(db, attendee_id)
     if db_attendee:
-        db.delete(db_attendee)
-        await db.commit()
+        try:
+            db.delete(db_attendee)
+            await db.commit()
+        except SQLAlchemyError as e:
+            await db.rollback()
+            raise e
         return db_attendee
     else:
         return None
@@ -57,9 +64,7 @@ async def delete_meeting_attendee(
 
 async def get_attendees_by_meeting(
     db: AsyncSession, meeting_id: int
-) -> list[models.MeetingAttendee]:
+) -> list[MeetingAttendee]:
     return await (
-        db.query(models.MeetingAttendee)
-        .filter(models.MeetingAttendee.meeting_id == meeting_id)
-        .all()
+        db.query(MeetingAttendee).filter(MeetingAttendee.meeting_id == meeting_id).all()
     )

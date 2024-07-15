@@ -1,13 +1,16 @@
 import datetime
 
 from dateutil.rrule import rrulestr
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, validator
 
 
-class MeetingRecurrenceCreate(BaseModel):
+# Define a base class that will be used to create other classes.
+class MeetingRecurrenceBase(BaseModel):
     rrule: str
 
-    @field_validator("rrule")
+
+class MeetingRecurrenceCreate(MeetingRecurrenceBase):
+    @validator("rrule")
     def validate_rrule(cls, value):
         try:
             # Attempt to parse the rule to ensure its validity
@@ -15,6 +18,10 @@ class MeetingRecurrenceCreate(BaseModel):
         except (ValueError, TypeError) as e:
             raise ValueError(f"Invalid recurrence rule: {str(e)}")
         return value
+
+
+class MeetingRecurrenceUpdate(MeetingRecurrenceBase):
+    pass
 
 
 class MeetingRecurrence(MeetingRecurrenceCreate):

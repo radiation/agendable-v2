@@ -33,9 +33,9 @@ async def get_meeting(db: AsyncSession, meeting_id: int) -> Meeting:
 async def update_meeting(
     db: AsyncSession, meeting_id: int, meeting: meeting_schemas.MeetingUpdate
 ) -> Meeting:
-    db_meeting = get_meeting(db, meeting_id)
+    db_meeting = await get_meeting(db, meeting_id)
     if db_meeting:
-        for key, value in meeting.dict().items():
+        for key, value in meeting.dict(exclude_unset=True).items():
             setattr(db_meeting, key, value)
         await db.commit()
         await db.refresh(db_meeting)

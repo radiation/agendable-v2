@@ -8,6 +8,7 @@ class TaskBase(BaseModel):
     title: str
     description: str
     due_date: Optional[datetime]
+    assignee_id: int
     completed: bool
     completed_date: Optional[datetime]
 

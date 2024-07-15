@@ -3,7 +3,7 @@ from typing import List
 import crud
 import db
 from fastapi import APIRouter, Depends, HTTPException
-from schemas import meeting_attendee_schemas
+from schemas import meeting_attendee_schemas, meeting_schemas
 from sqlalchemy.ext.asyncio import AsyncSession
 
 router = APIRouter()
@@ -73,10 +73,8 @@ async def read_attendees_by_meeting(
 
 
 # Get all meetings for a specific user
-@router.get(
-    "/user_meetings/{user_id}", response_model=List[meeting_attendee_schemas.Meeting]
-)
+@router.get("/user_meetings/{user_id}", response_model=List[meeting_schemas.Meeting])
 async def read_meetings_by_user(
     user_id: int, db: AsyncSession = Depends(db.get_db)
-) -> List[meeting_attendee_schemas.Meeting]:
+) -> List[meeting_schemas.Meeting]:
     return await crud.get_meetings_by_user(db=db, user_id=user_id)

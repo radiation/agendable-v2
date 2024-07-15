@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Optional
 
 from pydantic import BaseModel
-from schemas.meeting_recurrence_schemas import MeetingRecurrenceBase
+from schemas.meeting_recurrence_schemas import MeetingRecurrence
 
 
 class MeetingBase(BaseModel):
@@ -26,7 +26,7 @@ class MeetingUpdate(MeetingBase):
 
 class Meeting(MeetingBase):
     id: int
-    recurrence: Optional[MeetingRecurrenceBase]
+    recurrence: Optional[MeetingRecurrence]
 
     class Config:
         orm_mode = True

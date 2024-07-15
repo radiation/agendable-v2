@@ -1,6 +1,6 @@
 from typing import List
 
-import crud
+import crud.task_crud as crud
 import db
 from fastapi import APIRouter, Depends, HTTPException
 from schemas import task_schemas
