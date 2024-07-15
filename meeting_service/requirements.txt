@@ -12,3 +12,4 @@ isort
 ruff
 pytest
 async-asgi-testclient
+python-dateutil

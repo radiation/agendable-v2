@@ -2,12 +2,11 @@ from typing import List
 
 import crud
 import db
-from fastapi import APIRouter, Depends, Path
+from fastapi import APIRouter, Depends, HTTPException
 from schemas import meeting_task_schemas as schemas
 from sqlalchemy.ext.asyncio import AsyncSession
 
 router = APIRouter()
-
 
 # Create a new meeting task
 @router.post("/", response_model=schemas.MeetingTask)
@@ -26,11 +25,14 @@ async def read_meeting_tasks(
 
 
 # Get a meeting task by ID
-@router.get("/", response_model=schemas.MeetingTask)
+@router.get("/{task_id}", response_model=schemas.MeetingTask)
 async def get_meeting_task(
     task_id: int, db: AsyncSession = Depends(db.get_db)
 ) -> schemas.MeetingTask:
-    return await crud.get_meeting_task(db=db, task_id=task_id)
+    task = await crud.get_meeting_task(db=db, task_id=task_id)
+    if task is None:
+        raise HTTPException(status_code=404, detail="Meeting task not found")
+    return task
 
 
 # Update an existing meeting task
@@ -42,19 +44,16 @@ async def update_meeting_task(
 
 
 # Delete a meeting task
-@router.delete("/{task_id}", response_model=schemas.MeetingTask)
-async def delete_meeting_task(
-    task_id: int, db: AsyncSession = Depends(db.get_db)
-) -> schemas.MeetingTask:
-    return await crud.delete_meeting_task(db=db, task_id=task_id)
+@router.delete("/{task_id}", status_code=204)
+async def delete_meeting_task(task_id: int, db: AsyncSession = Depends(db.get_db)):
+    success = await crud.delete_meeting_task(db=db, task_id=task_id)
+    if not success:
+        raise HTTPException(status_code=404, detail="Meeting task not found")
 
 
 # Get all tasks for a specific meeting
-@router.get("/by_meeting/${meeting_id}", response_model=List[schemas.MeetingTask])
+@router.get("/by_meeting/{meeting_id}", response_model=List[schemas.MeetingTask])
 async def read_tasks_by_meeting(
-    meeting_id: int = Path(
-        ..., description="The ID of the meeting whose tasks are to be retrieved"
-    ),
-    db: AsyncSession = Depends(db.get_db),
+    meeting_id: int, db: AsyncSession = Depends(db.get_db)
 ) -> List[schemas.MeetingTask]:
-    return await crud.get_tasks_by_meeting(db, meeting_id=meeting_id)
+    return await crud.get_tasks_by_meeting(db=db, meeting_id=meeting_id)

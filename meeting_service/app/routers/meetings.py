@@ -1,11 +1,10 @@
 import crud.meeting_crud as crud
 import db
 from fastapi import APIRouter, Depends, HTTPException
-from schemas import meeting_recurrence_schemas, meeting_schemas
+from schemas import meeting_schemas
 from sqlalchemy.ext.asyncio import AsyncSession
 
 router = APIRouter()
-
 
 # Create a new meeting
 @router.post("/", response_model=meeting_schemas.Meeting)
@@ -29,7 +28,7 @@ async def get_meeting(
     meeting_id: int, db: AsyncSession = Depends(db.get_db)
 ) -> meeting_schemas.Meeting:
     db_meeting = await crud.get_meeting(db=db, meeting_id=meeting_id)
-    if not db_meeting:
+    if db_meeting is None:
         raise HTTPException(status_code=404, detail="Meeting not found")
     return db_meeting
 
@@ -44,7 +43,7 @@ async def update_meeting(
     updated_meeting = await crud.update_meeting(
         db=db, meeting_id=meeting_id, meeting=meeting
     )
-    if not updated_meeting:
+    if updated_meeting is None:
         raise HTTPException(status_code=404, detail="Meeting not found")
     return updated_meeting
 
@@ -57,21 +56,7 @@ async def delete_meeting(meeting_id: int, db: AsyncSession = Depends(db.get_db))
         raise HTTPException(status_code=404, detail="Meeting not found")
 
 
-# Get all attendees for a specific meeting
-@router.get(
-    "/{meeting_id}/recurrence/",
-    response_model=meeting_recurrence_schemas.MeetingRecurrence,
-)
-async def get_meeting_recurrence(
-    meeting_id: int, db: AsyncSession = Depends(db.get_db)
-) -> meeting_recurrence_schemas.MeetingRecurrence:
-    recurrence = await crud.get_meeting_recurrence(db=db, meeting_id=meeting_id)
-    if not recurrence:
-        raise HTTPException(status_code=404, detail="Recurrence not found")
-    return recurrence
-
-
-# Complete a meeting & roll tasks over to the next occurrence
+# Complete a meeting and roll tasks over to the next occurrence
 @router.post("/{meeting_id}/complete/", response_model=dict)
 async def complete_meeting(meeting_id: int, db: AsyncSession = Depends(db.get_db)):
     success = await crud.complete_meeting(db=db, meeting_id=meeting_id)
@@ -85,13 +70,12 @@ async def complete_meeting(meeting_id: int, db: AsyncSession = Depends(db.get_db
 # Add a recurrence to a meeting
 @router.post("/{meeting_id}/add_recurrence/", response_model=meeting_schemas.Meeting)
 async def add_recurrence(
-    meeting_id: int, recurrence_id: int, db: AsyncSession = Depends(db.get_db)
+    meeting_id: int,
+    recurrence_data: meeting_schemas.MeetingRecurrenceCreate,
+    db: AsyncSession = Depends(db.get_db),
 ):
-    if not recurrence_id:
-        raise HTTPException(status_code=400, detail="Recurrence ID is required")
     meeting = await crud.add_recurrence(
-        db=db, meeting_id=meeting_id, recurrence_id=recurrence_id
+        db=db, meeting_id=meeting_id, recurrence_data=recurrence_data
     )
-    if not meeting:
-        raise HTTPException(status_code=404, detail="Meeting not found")
-    return meeting
+    if meeting is None:
+        raise

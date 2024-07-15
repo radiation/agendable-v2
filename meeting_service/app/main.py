@@ -20,8 +20,8 @@ app.include_router(
 )
 app.include_router(
     meeting_recurrences.router,
-    prefix="/meeting_recurrence",
-    tags=["meeting_recurrence"],
+    prefix="/meeting_recurrences",
+    tags=["meeting_recurrences"],
 )
 
 

@@ -10,12 +10,11 @@ class MeetingRecurrence(Base):
     __tablename__ = "meeting_recurrences"
 
     id = Column(Integer, primary_key=True)
-    frequency = Column(Integer)
-    week_day = Column(Integer, nullable=True)
-    month_week = Column(Integer, nullable=True)
-    interval = Column(Integer, default=1)
-    end_recurrence = Column(DateTime(timezone=True), nullable=True)
+    rrule = Column(String, nullable=False)  # Store the RFC 5545 recurrence rule string
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    def __repr__(self):
+        return f"<MeetingRecurrence(rrule={self.rrule})>"
 
 
 class Meeting(Base):
