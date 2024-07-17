@@ -57,6 +57,7 @@ async def delete_meeting_task(db: AsyncSession, task_id: int) -> MeetingTask:
 
 
 async def get_tasks_by_meeting(db: AsyncSession, meeting_id: int) -> list[MeetingTask]:
-    return await (
-        db.query(MeetingTask).filter(MeetingTask.meeting_id == meeting_id).all()
+    result = await db.execute(
+        select(MeetingTask).where(MeetingTask.meeting_id == meeting_id)
     )
+    return result.scalars().all()

@@ -66,12 +66,6 @@ async def get_meeting_recurrence_by_meeting(
     )
 
 
-async def get_next_occurrence(db: AsyncSession, meeting_id: int) -> Meeting:
-    meeting = get_meeting(db, meeting_id)
-    if meeting:
-        pass
-
-
 async def complete_meeting(db: AsyncSession, meeting_id: int) -> Meeting:
     meeting = await get_meeting(db, meeting_id)
     if meeting:
