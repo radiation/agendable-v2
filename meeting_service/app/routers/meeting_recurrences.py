@@ -1,4 +1,4 @@
-import crud
+import crud.meeting_recurrence_crud as crud
 import db
 from fastapi import APIRouter, Depends, HTTPException
 from schemas import meeting_recurrence_schemas

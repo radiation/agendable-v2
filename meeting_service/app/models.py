@@ -6,11 +6,22 @@ from sqlalchemy.orm import relationship
 Base = declarative_base()
 
 
+"""
+Store the RFC 5545 recurrence rule string
+rrules aren't TZ aware so these will always be UTC
+
+Examples:
+FREQ=WEEKLY;BYDAY=TU;BYHOUR=17;BYMINUTE=30
+FREQ=MONTHLY;BYMONTHDAY=15;BYHOUR=9;BYMINUTE=0
+FREQ=YEARLY;BYMONTH=6;BYMONTHDAY=24;BYHOUR=12;BYMINUTE=0
+"""
+
+
 class MeetingRecurrence(Base):
     __tablename__ = "meeting_recurrences"
 
     id = Column(Integer, primary_key=True)
-    rrule = Column(String, nullable=False)  # Store the RFC 5545 recurrence rule string
+    rrule = Column(String, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     def __repr__(self):

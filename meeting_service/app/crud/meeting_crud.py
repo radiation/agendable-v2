@@ -59,11 +59,11 @@ async def delete_meeting(db: AsyncSession, meeting_id: int) -> Meeting:
 async def get_meeting_recurrence_by_meeting(
     db: AsyncSession, meeting_id: int
 ) -> MeetingRecurrence:
-    return await (
-        db.query(MeetingRecurrence)
-        .filter(MeetingRecurrence.meetings.any(id=meeting_id))
-        .first()
+    result = await db.execute(
+        select(MeetingRecurrence).filter(MeetingRecurrence.meeting_id == meeting_id)
     )
+    recurrence = result.scalars().first()
+    return recurrence
 
 
 async def complete_meeting(db: AsyncSession, meeting_id: int) -> Meeting:
