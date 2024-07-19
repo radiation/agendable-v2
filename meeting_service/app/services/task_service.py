@@ -11,9 +11,9 @@ async def create_new_meeting_task(
     # Fetch the meeting and check for the next meeting in its recurrence
     meeting = await meeting_crud.get_meeting(db, meeting_id)
     if not meeting:
-        return None  # Meeting not found
+        raise ValueError(f"Meeting with ID {meeting_id} not found")
 
-    next_meeting = await meeting_service.get_next_meeting(
+    next_meeting = await meeting_service.get_subsequent_meeting(
         db, meeting.recurrence_id, after_date=meeting.end_date
     )
     due_date = next_meeting.start_date if next_meeting else None

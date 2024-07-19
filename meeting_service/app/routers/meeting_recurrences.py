@@ -1,7 +1,8 @@
 import crud.meeting_recurrence_crud as crud
 import db
 from fastapi import APIRouter, Depends, HTTPException
-from schemas import meeting_recurrence_schemas
+from schemas import meeting_recurrence_schemas, meeting_schemas
+from services import meeting_recurrence_service
 from sqlalchemy.ext.asyncio import AsyncSession
 
 router = APIRouter()
@@ -70,3 +71,12 @@ async def get_meeting_recurrences_by_meeting(
     meeting_id: int, db: AsyncSession = Depends(db.get_db)
 ) -> list[meeting_recurrence_schemas.MeetingRecurrence]:
     return await crud.get_meeting_recurrences_by_meeting(db=db, meeting_id=meeting_id)
+
+
+# Get the next meeting for a recurrence
+@router.get("/next-meeting/{recurrence_id}", response_model=meeting_schemas.Meeting)
+async def next_meeting(recurrence_id: int, db: AsyncSession = Depends(db.get_db)):
+    next_meeting = await meeting_recurrence_service.get_next_meeting(db, recurrence_id)
+    if not next_meeting:
+        return {"error": "No next meeting found or invalid recurrence"}
+    return next_meeting

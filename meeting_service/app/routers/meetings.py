@@ -74,18 +74,24 @@ async def add_recurrence(
     meeting_id: int,
     recurrence_data: meeting_recurrence_schemas.MeetingRecurrenceCreate,
     db: AsyncSession = Depends(db.get_db),
-):
+) -> meeting_schemas.Meeting:
     meeting = await crud.add_recurrence(
         db=db, meeting_id=meeting_id, recurrence_data=recurrence_data
     )
     if meeting is None:
-        raise
+        raise HTTPException(status_code=404, detail="Meeting not found")
+    return meeting
 
 
-# Get the next meeting for a recurrence
-@router.get("/next-meeting/{recurrence_id}")
-async def next_meeting(recurrence_id: int, db: AsyncSession = Depends(db.get_db)):
-    next_meeting = await meeting_service.get_next_meeting(db, recurrence_id)
+# Get the next meeting after a given meeting
+@router.get("/next/{meeting_id}")
+async def next_meeting(
+    meeting_id: int, db: AsyncSession = Depends(db.get_db)
+) -> meeting_schemas.Meeting:
+    current_meeting = await crud.get_meeting(db, meeting_id)
+    next_meeting = await meeting_service.get_subsequent_meeting(
+        db, current_meeting, after_date=current_meeting.end_date
+    )
     if not next_meeting:
-        return {"error": "No next meeting found or invalid recurrence"}
-    return {"next_meeting_date": next_meeting}
+        raise HTTPException(status_code=404, detail="Next meeting not found")
+    return next_meeting

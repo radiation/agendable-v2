@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 async def get_next_meeting_date(
     db: AsyncSession, recurrence_id: int, after_date: datetime = None
 ) -> datetime:
-    recurrence = await meeting_recurrence_crud.get(db, recurrence_id)
+    recurrence = await meeting_recurrence_crud.get_meeting_recurrence(db, recurrence_id)
     if not recurrence:
         return None
 
