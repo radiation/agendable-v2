@@ -9,20 +9,27 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
 
+# Get the next meeting in the series whose start date is after the given date
 async def get_subsequent_meeting(
-    db: AsyncSession, meeting: Meeting, after_date: datetime = None
+    db: AsyncSession, meeting: Meeting, after_date: datetime = datetime.now()
 ) -> Meeting:
+    if not meeting.recurrence_id:
+        raise ValueError(f"Meeting {meeting} does not have a recurrence set")
+
+    # Check if there's a meeting after the given date
     result = await db.execute(
         select(Meeting)
         .filter(
             and_(
                 Meeting.recurrence_id == meeting.recurrence_id,
-                Meeting.start_date > after_date if after_date else datetime.now(),
+                Meeting.start_date > after_date,
             )
         )
         .order_by(Meeting.start_date.asc())
     )
     next_meeting = result.scalars().first()
+
+    # If there's no meeting after the given date, create the next meeting
     if not next_meeting:
         return await create_subsequent_meeting(db, meeting)
     else:
@@ -54,8 +61,8 @@ async def create_subsequent_meeting(db: AsyncSession, meeting: Meeting) -> Meeti
         duration=meeting.duration,
         location=meeting.location,
         notes=meeting.notes,
-        num_reschedules=0,  # Reset or handle as needed
-        reminder_sent=False,  # Reset or set based on logic
+        num_reschedules=0,
+        reminder_sent=False,
     )
 
     # Use the meeting_crud to create the new meeting

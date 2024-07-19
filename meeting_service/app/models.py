@@ -1,5 +1,5 @@
 import sqlalchemy.sql.functions as func
-from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String
+from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String, event
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 
@@ -21,11 +21,12 @@ class MeetingRecurrence(Base):
     __tablename__ = "meeting_recurrences"
 
     id = Column(Integer, primary_key=True)
+    title = Column(String(100), default="")
     rrule = Column(String, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     def __repr__(self):
-        return f"<MeetingRecurrence(rrule={self.rrule})>"
+        return f"<MeetingRecurrence(title={self.title}, rrule={self.rrule})>"
 
 
 class Meeting(Base):
@@ -41,10 +42,21 @@ class Meeting(Base):
     notes = Column(String)
     num_reschedules = Column(Integer, default=0)
     reminder_sent = Column(Boolean, default=False)
+    completed = Column(Boolean, default=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     # Relationship
     recurrence = relationship("MeetingRecurrence", back_populates="meetings")
+
+
+@event.listens_for(Meeting, "before_insert")
+@event.listens_for(Meeting, "before_update")
+def receive_before_save(mapper, connection, target):
+    # Set the title based on recurrence if the title is empty
+    if not target.title and target.recurrence:
+        target.title = (
+            f"{target.recurrence.title} on {target.start_date.strftime('%Y-%m-%d')}"
+        )
 
 
 MeetingRecurrence.meetings = relationship("Meeting", back_populates="recurrence")
