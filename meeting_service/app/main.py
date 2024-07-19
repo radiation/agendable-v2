@@ -1,25 +1,27 @@
 from fastapi import FastAPI
 from routers import (
-    meeting_attendees,
-    meeting_recurrences,
-    meeting_tasks,
-    meetings,
-    tasks,
+    meeting_attendee_router,
+    meeting_recurrence_router,
+    meeting_router,
+    meeting_task_router,
+    task_router,
 )
 
 app = FastAPI()
 
 # Include routers that might use the database internally
-app.include_router(meetings.router, prefix="/meetings", tags=["meetings"])
-app.include_router(tasks.router, prefix="/tasks", tags=["tasks"])
+app.include_router(meeting_router.router, prefix="/meetings", tags=["meetings"])
+app.include_router(task_router.router, prefix="/tasks", tags=["tasks"])
 app.include_router(
-    meeting_tasks.router, prefix="/meeting_tasks", tags=["meeting_tasks"]
+    meeting_task_router.router, prefix="/meeting_tasks", tags=["meeting_tasks"]
 )
 app.include_router(
-    meeting_attendees.router, prefix="/meeting_attendees", tags=["meeting_attendees"]
+    meeting_attendee_router.router,
+    prefix="/meeting_attendees",
+    tags=["meeting_attendees"],
 )
 app.include_router(
-    meeting_recurrences.router,
+    meeting_recurrence_router.router,
     prefix="/meeting_recurrences",
     tags=["meeting_recurrences"],
 )
