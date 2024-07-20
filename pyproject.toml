@@ -1,2 +1,7 @@
 [tool.isort]
 profile = "black"
+
+[tool.ruff]
+exclude = [
+    "**/__init__.py"  # This pattern excludes all __init__.py files in your project
+]
