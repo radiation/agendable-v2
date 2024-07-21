@@ -1,8 +1,8 @@
 from datetime import datetime
 from typing import Optional
 
+from app.schemas.meeting_recurrence_schemas import MeetingRecurrence
 from pydantic import BaseModel
-from schemas.meeting_recurrence_schemas import MeetingRecurrence
 
 
 class MeetingBase(BaseModel):

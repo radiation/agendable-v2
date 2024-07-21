@@ -1,7 +1,7 @@
 import datetime
 
 from dateutil.rrule import rrulestr
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, field_validator
 
 
 # Define a base class that will be used to create other classes.
@@ -10,7 +10,7 @@ class MeetingRecurrenceBase(BaseModel):
 
 
 class MeetingRecurrenceCreate(MeetingRecurrenceBase):
-    @validator("rrule")
+    @field_validator("rrule")
     def validate_rrule(cls, value):
         try:
             # Attempt to parse the rule to ensure its validity
