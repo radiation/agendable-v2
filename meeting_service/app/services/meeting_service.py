@@ -1,9 +1,9 @@
 from datetime import datetime
 
-from crud import meeting_crud, meeting_task_crud
-from models import Meeting, MeetingTask
-from schemas import meeting_schemas
-from services import meeting_recurrence_service
+from app.crud import meeting_crud, meeting_task_crud
+from app.models import Meeting, MeetingTask
+from app.schemas import meeting_schemas
+from app.services import meeting_recurrence_service
 from sqlalchemy import and_
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
@@ -44,7 +44,7 @@ async def create_subsequent_meeting(db: AsyncSession, meeting: Meeting) -> Meeti
         db, meeting.recurrence_id, meeting.start_date
     )
     if not next_meeting_date:
-        return None  # Handle error if next meeting date not found
+        return None  # TODO: Handle error if next meeting date not found
 
     # Calculate the end date based on the duration if applicable
     if meeting.end_date and meeting.start_date:

@@ -1,9 +1,9 @@
 from typing import List
 
-import crud
-import db
+from app import db
+from app.crud import meeting_task_crud
+from app.schemas import meeting_task_schemas as schemas
 from fastapi import APIRouter, Depends, HTTPException
-from schemas import meeting_task_schemas as schemas
 from sqlalchemy.ext.asyncio import AsyncSession
 
 router = APIRouter()
@@ -13,7 +13,7 @@ router = APIRouter()
 async def create_meeting_task(
     task: schemas.MeetingTaskCreate, db: AsyncSession = Depends(db.get_db)
 ) -> schemas.MeetingTask:
-    return await crud.create_meeting_task(db=db, task=task)
+    return await meeting_task_crud.create_meeting_task(db=db, task=task)
 
 
 # List all meeting tasks
@@ -21,7 +21,7 @@ async def create_meeting_task(
 async def read_meeting_tasks(
     skip: int = 0, limit: int = 10, db: AsyncSession = Depends(db.get_db)
 ) -> List[schemas.MeetingTask]:
-    return await crud.get_meeting_tasks(db=db, skip=skip, limit=limit)
+    return await meeting_task_crud.get_meeting_tasks(db=db, skip=skip, limit=limit)
 
 
 # Get a meeting task by ID
@@ -29,7 +29,7 @@ async def read_meeting_tasks(
 async def get_meeting_task(
     task_id: int, db: AsyncSession = Depends(db.get_db)
 ) -> schemas.MeetingTask:
-    task = await crud.get_meeting_task(db=db, task_id=task_id)
+    task = await meeting_task_crud.get_meeting_task(db=db, task_id=task_id)
     if task is None:
         raise HTTPException(status_code=404, detail="Meeting task not found")
     return task
@@ -40,13 +40,15 @@ async def get_meeting_task(
 async def update_meeting_task(
     task_id: int, task: schemas.MeetingTaskUpdate, db: AsyncSession = Depends(db.get_db)
 ) -> schemas.MeetingTask:
-    return await crud.update_meeting_task(db=db, task_id=task_id, task=task)
+    return await meeting_task_crud.update_meeting_task(
+        db=db, task_id=task_id, task=task
+    )
 
 
 # Delete a meeting task
 @router.delete("/{task_id}", status_code=204)
 async def delete_meeting_task(task_id: int, db: AsyncSession = Depends(db.get_db)):
-    success = await crud.delete_meeting_task(db=db, task_id=task_id)
+    success = await meeting_task_crud.delete_meeting_task(db=db, task_id=task_id)
     if not success:
         raise HTTPException(status_code=404, detail="Meeting task not found")
 
@@ -56,4 +58,4 @@ async def delete_meeting_task(task_id: int, db: AsyncSession = Depends(db.get_db
 async def read_tasks_by_meeting(
     meeting_id: int, db: AsyncSession = Depends(db.get_db)
 ) -> List[schemas.MeetingTask]:
-    return await crud.get_tasks_by_meeting(db=db, meeting_id=meeting_id)
+    return await meeting_task_crud.get_tasks_by_meeting(db=db, meeting_id=meeting_id)

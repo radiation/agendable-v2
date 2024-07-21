@@ -1,5 +1,5 @@
-from models import MeetingTask
-from schemas import meeting_task_schemas
+from app.models import MeetingTask
+from app.schemas import meeting_task_schemas
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select

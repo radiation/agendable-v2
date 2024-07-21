@@ -1,8 +1,8 @@
 from datetime import datetime
 
-from crud import meeting_crud
-from models import MeetingTask, Task
-from services import meeting_service
+from app.crud import meeting_crud
+from app.models import MeetingTask, Task
+from app.services import meeting_service
 from sqlalchemy.ext.asyncio import AsyncSession
 
 

@@ -1,9 +1,9 @@
 from typing import List
 
-import crud
-import db
+from app import db
+from app.crud import meeting_attendee_crud
+from app.schemas import meeting_attendee_schemas, meeting_schemas
 from fastapi import APIRouter, Depends, HTTPException
-from schemas import meeting_attendee_schemas, meeting_schemas
 from sqlalchemy.ext.asyncio import AsyncSession
 
 router = APIRouter()
@@ -14,7 +14,7 @@ async def create_meeting_attendee(
     attendee: meeting_attendee_schemas.MeetingAttendeeCreate,
     db: AsyncSession = Depends(db.get_db),
 ) -> meeting_attendee_schemas.MeetingAttendee:
-    return await crud.create_meeting_attendee(db=db, attendee=attendee)
+    return await meeting_attendee_crud.create_meeting_attendee(db=db, attendee=attendee)
 
 
 # List all meeting attendees
@@ -22,7 +22,9 @@ async def create_meeting_attendee(
 async def get_meeting_attendees(
     skip: int = 0, limit: int = 10, db: AsyncSession = Depends(db.get_db)
 ) -> List[meeting_attendee_schemas.MeetingAttendee]:
-    return await crud.get_meeting_attendees(db=db, skip=skip, limit=limit)
+    return await meeting_attendee_crud.get_meeting_attendees(
+        db=db, skip=skip, limit=limit
+    )
 
 
 # Get a meeting attendee by ID
@@ -30,7 +32,9 @@ async def get_meeting_attendees(
 async def get_meeting_attendee(
     attendee_id: int, db: AsyncSession = Depends(db.get_db)
 ) -> meeting_attendee_schemas.MeetingAttendee:
-    attendee = await crud.get_meeting_attendee(db=db, attendee_id=attendee_id)
+    attendee = await meeting_attendee_crud.get_meeting_attendee(
+        db=db, attendee_id=attendee_id
+    )
     if not attendee:
         raise HTTPException(status_code=404, detail="Meeting attendee not found")
     return attendee
@@ -43,7 +47,7 @@ async def update_meeting_attendee(
     attendee: meeting_attendee_schemas.MeetingAttendeeUpdate,
     db: AsyncSession = Depends(db.get_db),
 ) -> meeting_attendee_schemas.MeetingAttendee:
-    updated_attendee = await crud.update_meeting_attendee(
+    updated_attendee = await meeting_attendee_crud.update_meeting_attendee(
         db=db, attendee_id=attendee_id, attendee=attendee
     )
     if not updated_attendee:
@@ -56,7 +60,9 @@ async def update_meeting_attendee(
 async def delete_meeting_attendee(
     attendee_id: int, db: AsyncSession = Depends(db.get_db)
 ):
-    success = await crud.delete_meeting_attendee(db=db, attendee_id=attendee_id)
+    success = await meeting_attendee_crud.delete_meeting_attendee(
+        db=db, attendee_id=attendee_id
+    )
     if not success:
         raise HTTPException(status_code=404, detail="Meeting attendee not found")
 
@@ -69,7 +75,9 @@ async def delete_meeting_attendee(
 async def read_attendees_by_meeting(
     meeting_id: int, db: AsyncSession = Depends(db.get_db)
 ) -> List[meeting_attendee_schemas.MeetingAttendee]:
-    return await crud.get_attendees_by_meeting(db=db, meeting_id=meeting_id)
+    return await meeting_attendee_crud.get_attendees_by_meeting(
+        db=db, meeting_id=meeting_id
+    )
 
 
 # Get all meetings for a specific user
@@ -77,4 +85,4 @@ async def read_attendees_by_meeting(
 async def read_meetings_by_user(
     user_id: int, db: AsyncSession = Depends(db.get_db)
 ) -> List[meeting_schemas.Meeting]:
-    return await crud.get_meetings_by_user(db=db, user_id=user_id)
+    return await meeting_attendee_crud.get_meetings_by_user(db=db, user_id=user_id)

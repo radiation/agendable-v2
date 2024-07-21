@@ -1,11 +1,11 @@
-from fastapi import FastAPI
-from routers import (
+from app.routers import (
     meeting_attendee_router,
     meeting_recurrence_router,
     meeting_router,
     meeting_task_router,
     task_router,
 )
+from fastapi import FastAPI
 
 app = FastAPI()
 

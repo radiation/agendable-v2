@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from crud import meeting_recurrence_crud
+from app.crud import meeting_recurrence_crud
 from dateutil.rrule import MONTHLY, rrule
 from sqlalchemy.ext.asyncio import AsyncSession
 

@@ -1,5 +1,5 @@
-from models import MeetingAttendee
-from schemas import meeting_attendee_schemas
+from app.models import MeetingAttendee
+from app.schemas import meeting_attendee_schemas
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
@@ -65,6 +65,16 @@ async def delete_meeting_attendee(
 async def get_attendees_by_meeting(
     db: AsyncSession, meeting_id: int
 ) -> list[MeetingAttendee]:
-    return await (
-        db.query(MeetingAttendee).filter(MeetingAttendee.meeting_id == meeting_id).all()
+    result = await db.execute(
+        select(MeetingAttendee).filter(MeetingAttendee.meeting_id == meeting_id)
     )
+    attendees = result.scalars().all()
+    return attendees
+
+
+async def get_meetings_by_user(db: AsyncSession, user_id: int) -> list[MeetingAttendee]:
+    result = await db.execute(
+        select(MeetingAttendee).filter(MeetingAttendee.user_id == user_id)
+    )
+    meetings = result.scalars().all()
+    return meetings

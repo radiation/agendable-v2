@@ -27,7 +27,7 @@ class Meeting(Base):
 
 @event.listens_for(Meeting, "before_insert")
 @event.listens_for(Meeting, "before_update")
-def receive_before_save(mapper, connection, target):
+def receive_before_save(mapper, connection, target: Meeting):
     # Set the title based on recurrence if the title is empty
     if not target.title and target.recurrence:
         target.title = (

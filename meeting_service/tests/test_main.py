@@ -1,7 +1,8 @@
+from app.db import get_db
+from app.main import app
+from app.models import Base
 from config import settings
-from db import Base, get_db
 from fastapi.testclient import TestClient
-from main import app
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 

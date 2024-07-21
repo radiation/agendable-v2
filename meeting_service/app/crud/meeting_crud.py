@@ -1,5 +1,5 @@
-from models import Meeting, MeetingRecurrence
-from schemas import meeting_schemas
+from app.models import Meeting, MeetingRecurrence
+from app.schemas import meeting_schemas
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select

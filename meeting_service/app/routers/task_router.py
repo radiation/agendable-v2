@@ -1,9 +1,9 @@
 from typing import List
 
-import crud.task_crud as crud
-import db
+from app import db
+from app.crud import task_crud
+from app.schemas import task_schemas
 from fastapi import APIRouter, Depends, HTTPException
-from schemas import task_schemas
 from sqlalchemy.ext.asyncio import AsyncSession
 
 router = APIRouter()
@@ -13,23 +13,23 @@ router = APIRouter()
 async def create_task(
     task: task_schemas.TaskCreate, db: AsyncSession = Depends(db.get_db)
 ) -> task_schemas.Task:
-    return await crud.create_task(db=db, task=task)
+    return await task_crud.create_task(db=db, task=task)
 
 
 # List all tasks
 @router.get("/", response_model=List[task_schemas.Task])
-async def read_tasks(
+async def get_tasks(
     skip: int = 0, limit: int = 10, db: AsyncSession = Depends(db.get_db)
-) -> List[task_schemas.Task]:
-    return await crud.get_tasks(db=db, skip=skip, limit=limit)
+) -> list[task_schemas.Task]:
+    return await task_crud.get_tasks(db=db, skip=skip, limit=limit)
 
 
 # Get a task by ID
 @router.get("/{task_id}", response_model=task_schemas.Task)
-async def read_task(
+async def get_task(
     task_id: int, db: AsyncSession = Depends(db.get_db)
 ) -> task_schemas.Task:
-    task = await crud.get_task(db=db, task_id=task_id)
+    task = await task_crud.get_task(db=db, task_id=task_id)
     if not task:
         raise HTTPException(status_code=404, detail="Task not found")
     return task
@@ -42,7 +42,7 @@ async def update_task(
     task: task_schemas.TaskUpdate,
     db: AsyncSession = Depends(db.get_db),
 ) -> task_schemas.Task:
-    updated_task = await crud.update_task(db=db, task_id=task_id, task=task)
+    updated_task = await task_crud.update_task(db=db, task_id=task_id, task=task)
     if not updated_task:
         raise HTTPException(status_code=404, detail="Task not found")
     return updated_task
@@ -51,7 +51,7 @@ async def update_task(
 # Delete a task
 @router.delete("/{task_id}", status_code=204)
 async def delete_task(task_id: int, db: AsyncSession = Depends(db.get_db)):
-    success = await crud.delete_task(db=db, task_id=task_id)
+    success = await task_crud.delete_task(db=db, task_id=task_id)
     if not success:
         raise HTTPException(status_code=404, detail="Task not found")
 
@@ -61,7 +61,7 @@ async def delete_task(task_id: int, db: AsyncSession = Depends(db.get_db)):
 async def read_tasks_by_user(
     user_id: int, db: AsyncSession = Depends(db.get_db)
 ) -> List[task_schemas.Task]:
-    return await crud.get_tasks_by_user(db=db, user_id=user_id)
+    return await task_crud.get_tasks_by_user(db=db, user_id=user_id)
 
 
 # Mark a task as complete
@@ -69,7 +69,7 @@ async def read_tasks_by_user(
 async def complete_task(
     task_id: int, db: AsyncSession = Depends(db.get_db)
 ) -> task_schemas.Task:
-    task = await crud.mark_task_complete(db=db, task_id=task_id)
+    task = await task_crud.mark_task_complete(db=db, task_id=task_id)
     if not task:
         raise HTTPException(
             status_code=404, detail="Task not found or already completed"

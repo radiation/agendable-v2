@@ -1,8 +1,8 @@
-import crud.meeting_recurrence_crud as crud
-import db
+from app import db
+from app.crud import meeting_recurrence_crud
+from app.schemas import meeting_recurrence_schemas, meeting_schemas
+from app.services import meeting_recurrence_service
 from fastapi import APIRouter, Depends, HTTPException
-from schemas import meeting_recurrence_schemas, meeting_schemas
-from services import meeting_recurrence_service
 from sqlalchemy.ext.asyncio import AsyncSession
 
 router = APIRouter()
@@ -13,7 +13,7 @@ async def create_meeting_recurrence(
     meeting_recurrence: meeting_recurrence_schemas.MeetingRecurrenceCreate,
     db: AsyncSession = Depends(db.get_db),
 ) -> meeting_recurrence_schemas.MeetingRecurrence:
-    return await crud.create_meeting_recurrence(
+    return await meeting_recurrence_crud.create_meeting_recurrence(
         db=db, meeting_recurrence=meeting_recurrence
     )
 
@@ -23,7 +23,9 @@ async def create_meeting_recurrence(
 async def get_meeting_recurrences(
     skip: int = 0, limit: int = 10, db: AsyncSession = Depends(db.get_db)
 ) -> list[meeting_recurrence_schemas.MeetingRecurrence]:
-    return await crud.get_meeting_recurrences(db=db, skip=skip, limit=limit)
+    return await meeting_recurrence_crud.get_meeting_recurrences(
+        db=db, skip=skip, limit=limit
+    )
 
 
 # Get a meeting recurrence by ID
@@ -33,7 +35,9 @@ async def get_meeting_recurrences(
 async def get_meeting_recurrence(
     meeting_id: int, db: AsyncSession = Depends(db.get_db)
 ) -> meeting_recurrence_schemas.MeetingRecurrence:
-    recurrence = await crud.get_meeting_recurrence(db=db, meeting_id=meeting_id)
+    recurrence = await meeting_recurrence_crud.get_meeting_recurrence(
+        db=db, meeting_id=meeting_id
+    )
     if recurrence is None:
         raise HTTPException(status_code=404, detail="Meeting recurrence not found")
     return recurrence
@@ -48,7 +52,7 @@ async def update_meeting_recurrence(
     meeting_recurrence: meeting_recurrence_schemas.MeetingRecurrenceUpdate,
     db: AsyncSession = Depends(db.get_db),
 ) -> meeting_recurrence_schemas.MeetingRecurrence:
-    return await crud.update_meeting_recurrence(
+    return await meeting_recurrence_crud.update_meeting_recurrence(
         db=db, meeting_id=meeting_id, meeting_recurrence=meeting_recurrence
     )
 
@@ -58,7 +62,9 @@ async def update_meeting_recurrence(
 async def delete_meeting_recurrence(
     meeting_id: int, db: AsyncSession = Depends(db.get_db)
 ):
-    await crud.delete_meeting_recurrence(db=db, meeting_id=meeting_id)
+    await meeting_recurrence_crud.delete_meeting_recurrence(
+        db=db, meeting_id=meeting_id
+    )
     return {"detail": "Meeting recurrence deleted successfully"}
 
 
@@ -70,7 +76,9 @@ async def delete_meeting_recurrence(
 async def get_meeting_recurrences_by_meeting(
     meeting_id: int, db: AsyncSession = Depends(db.get_db)
 ) -> list[meeting_recurrence_schemas.MeetingRecurrence]:
-    return await crud.get_meeting_recurrences_by_meeting(db=db, meeting_id=meeting_id)
+    return await meeting_recurrence_crud.get_meeting_recurrences_by_meeting(
+        db=db, meeting_id=meeting_id
+    )
 
 
 # Get the next meeting for a recurrence
