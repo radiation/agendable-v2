@@ -1,7 +1,8 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class MeetingTaskBase(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
     meeting_id: int
     task_id: int
 
@@ -16,6 +17,3 @@ class MeetingTaskUpdate(MeetingTaskBase):
 
 class MeetingTask(MeetingTaskBase):
     id: int
-
-    class Config:
-        orm_mode = True

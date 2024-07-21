@@ -3,6 +3,7 @@ from app.schemas import meeting_schemas
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
+from sqlalchemy.orm import joinedload
 
 
 async def create_meeting(
@@ -18,14 +19,24 @@ async def create_meeting(
 async def get_meetings(
     db: AsyncSession, skip: int = 0, limit: int = 10
 ) -> list[Meeting]:
-    stmt = select(Meeting).offset(skip).limit(limit)
+    stmt = (
+        select(Meeting)
+        .options(joinedload(Meeting.recurrence))
+        .offset(skip)
+        .limit(limit)
+    )
     result = await db.execute(stmt)
     meetings = result.scalars().all()
     return meetings
 
 
 async def get_meeting(db: AsyncSession, meeting_id: int) -> Meeting:
-    result = await db.execute(select(Meeting).filter(Meeting.id == meeting_id))
+    stmt = (
+        select(Meeting)
+        .options(joinedload(Meeting.recurrence))
+        .filter(Meeting.id == meeting_id)
+    )
+    result = await db.execute(stmt)
     meeting = result.scalars().first()
     return meeting
 
@@ -69,7 +80,6 @@ async def get_meeting_recurrence_by_meeting(
 async def complete_meeting(db: AsyncSession, meeting_id: int) -> Meeting:
     meeting = await get_meeting(db, meeting_id)
     if meeting:
-        # Update meeting status to completed
         meeting.completed = True
         await db.commit()
         await db.refresh(meeting)
@@ -79,19 +89,22 @@ async def complete_meeting(db: AsyncSession, meeting_id: int) -> Meeting:
 async def add_recurrence(
     db: AsyncSession, meeting_id: int, recurrence_id: int
 ) -> Meeting:
-    meeting = await get_meeting(db, meeting_id)
-    if meeting:
-        recurrence = await (
-            db.query(MeetingRecurrence)
-            .filter(MeetingRecurrence.id == recurrence_id)
-            .first()
-        )
-        if recurrence:
-            meeting.recurrence = recurrence
-            db.commit()
-            db.refresh(meeting)
-            return meeting
-        else:
-            # Create recurrence
-            pass
-    return None
+    meeting = get_meeting(db, meeting_id)
+    if not meeting:
+        raise ValueError("Meeting not found")
+
+    if meeting.recurrence_id is not None:
+        # We don't want to add a recurrence to a meeting that already has one
+        return meeting
+
+    recurrence_exists = await db.scalar(
+        select(MeetingRecurrence.id).filter(MeetingRecurrence.id == recurrence_id)
+    )
+
+    if not recurrence_exists:
+        raise ValueError("Recurrence not found")
+
+    meeting.recurrence_id = recurrence_id
+    await db.commit()
+    await db.refresh(meeting)
+    return meeting

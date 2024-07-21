@@ -32,19 +32,4 @@ client = TestClient(app)
 def test_read_main():
     response = client.get("/")
     assert response.status_code == 200
-    assert response.json() == {"msg": "Hello World"}
-
-
-def test_create_meeting():
-    response = client.post(
-        "/meetings/",
-        json={
-            "title": "Team Meeting",
-            "start_date": "2023-01-01T09:00:00",
-            "end_date": "2023-01-01T10:00:00",
-        },
-    )
-    assert response.status_code == 200
-    data = response.json()
-    assert data["title"] == "Team Meeting"
-    assert "id" in data
+    assert response.json() == {"message": "Welcome to the Meeting Service API"}

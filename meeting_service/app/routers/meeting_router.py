@@ -1,6 +1,6 @@
 from app import db
 from app.crud import meeting_crud
-from app.schemas import meeting_recurrence_schemas, meeting_schemas
+from app.schemas import meeting_schemas
 from app.services import meeting_service
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -69,14 +69,17 @@ async def complete_meeting(meeting_id: int, db: AsyncSession = Depends(db.get_db
 
 
 # Add a recurrence to a meeting
-@router.post("/{meeting_id}/add_recurrence/", response_model=meeting_schemas.Meeting)
+@router.post(
+    "/{meeting_id}/add_recurrence/{recurrence_id}",
+    response_model=meeting_schemas.Meeting,
+)
 async def add_recurrence(
     meeting_id: int,
-    recurrence_data: meeting_recurrence_schemas.MeetingRecurrenceCreate,
+    recurrence_id: int,
     db: AsyncSession = Depends(db.get_db),
 ) -> meeting_schemas.Meeting:
     meeting = await meeting_crud.add_recurrence(
-        db=db, meeting_id=meeting_id, recurrence_data=recurrence_data
+        db=db, meeting_id=meeting_id, recurrence_id=recurrence_id
     )
     if meeting is None:
         raise HTTPException(status_code=404, detail="Meeting not found")
