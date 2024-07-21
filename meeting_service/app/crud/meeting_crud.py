@@ -13,6 +13,10 @@ async def create_meeting(
     db.add(db_meeting)
     await db.commit()
     await db.refresh(db_meeting)
+    if db_meeting.recurrence_id:
+        db_meeting = await db.get(
+            Meeting, db_meeting.id, options=[joinedload(Meeting.recurrence)]
+        )
     return db_meeting
 
 

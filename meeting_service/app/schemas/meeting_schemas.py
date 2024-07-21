@@ -18,11 +18,11 @@ class MeetingBase(BaseModel):
 
 
 class MeetingCreate(MeetingBase):
-    pass
+    recurrence_id: Optional[int] = None
 
 
 class MeetingUpdate(MeetingBase):
-    pass
+    recurrence_id: Optional[int] = None
 
 
 class Meeting(MeetingBase):

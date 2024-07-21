@@ -22,7 +22,9 @@ class Meeting(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     # Relationship
-    recurrence = relationship("MeetingRecurrence", back_populates="meetings")
+    recurrence = relationship(
+        "MeetingRecurrence", back_populates="meetings", lazy="select"
+    )
 
 
 @event.listens_for(Meeting, "before_insert")
