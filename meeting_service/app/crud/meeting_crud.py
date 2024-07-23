@@ -9,7 +9,7 @@ from sqlalchemy.orm import joinedload
 async def create_meeting(
     db: AsyncSession, meeting: meeting_schemas.MeetingCreate
 ) -> Meeting:
-    db_meeting = Meeting(**meeting.dict())
+    db_meeting = Meeting(**meeting.model_dump())
     db.add(db_meeting)
     await db.commit()
     await db.refresh(db_meeting)
@@ -50,7 +50,7 @@ async def update_meeting(
 ) -> Meeting:
     db_meeting = await get_meeting(db, meeting_id)
     if db_meeting:
-        for key, value in meeting.dict(exclude_unset=True).items():
+        for key, value in meeting.model_dump(exclude_unset=True).items():
             setattr(db_meeting, key, value)
         await db.commit()
         await db.refresh(db_meeting)
@@ -61,7 +61,7 @@ async def delete_meeting(db: AsyncSession, meeting_id: int) -> Meeting:
     db_meeting = await get_meeting(db, meeting_id)
     if db_meeting:
         try:
-            db.delete(db_meeting)
+            await db.delete(db_meeting)
             await db.commit()
         except SQLAlchemyError as e:
             await db.rollback()

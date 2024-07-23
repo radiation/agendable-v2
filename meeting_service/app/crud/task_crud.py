@@ -7,7 +7,7 @@ from sqlalchemy.future import select
 
 
 async def create_task(db: AsyncSession, task: task_schemas.TaskCreate) -> Task:
-    db_task = Task(**task.dict())
+    db_task = Task(**task.model_dump())
     db.add(db_task)
     await db.commit()
     await db.refresh(db_task)
