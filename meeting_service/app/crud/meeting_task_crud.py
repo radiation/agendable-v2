@@ -8,7 +8,7 @@ from sqlalchemy.future import select
 async def create_meeting_task(
     db: AsyncSession, task: meeting_task_schemas.MeetingTaskCreate
 ) -> MeetingTask:
-    db_task = MeetingTask(**task.dict())
+    db_task = MeetingTask(**task.model_dump())
     db.add(db_task)
     await db.commit()
     await db.refresh(db_task)
@@ -35,7 +35,7 @@ async def update_meeting_task(
 ) -> MeetingTask:
     db_task = get_meeting_task(db, task_id)
     if db_task:
-        for key, value in task.dict(exclude_unset=True).items():
+        for key, value in task.model_dump(exclude_unset=True).items():
             setattr(db_task, key, value)
         await db.commit()
         await db.refresh(db_task)

@@ -1,24 +1,22 @@
 import pytest
-from app.main import app
-from httpx import AsyncClient
 
-client = AsyncClient(app=app)
+meeting_data = {
+    "title": "Team Meeting",
+    "start_date": "2024-01-01T09:00:00Z",
+    "end_date": "2024-01-01T10:00:00Z",
+    "duration": 60,
+    "location": "Conference Room 1",
+    "notes": "Monthly review meeting",
+    "num_reschedules": 0,
+    "reminder_sent": False,
+}
 
 
 @pytest.mark.asyncio
 async def test_create_meeting(test_client):
     response = await test_client.post(
         "/meetings/",
-        json={
-            "title": "Team Meeting",
-            "start_date": "2024-01-01T09:00:00Z",
-            "end_date": "2024-01-01T10:00:00Z",
-            "duration": 60,
-            "location": "Conference Room 1",
-            "notes": "Monthly review meeting",
-            "num_reschedules": 0,
-            "reminder_sent": False,
-        },
+        json=meeting_data,
     )
     assert response.status_code == 200
     data = response.json()
@@ -45,8 +43,13 @@ async def test_get_meeting(test_client):
 
 @pytest.mark.asyncio
 async def test_update_meeting(test_client):
+    response = await test_client.post(
+        "/meetings/",
+        json=meeting_data,
+    )
+    meeting_id = response.json()["id"]
     response = await test_client.put(
-        "/meetings/1",
+        f"/meetings/{meeting_id}",
         json={
             "title": "Updated Team Meeting",
             "start_date": "2024-01-01T09:00:00Z",

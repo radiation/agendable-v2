@@ -8,7 +8,7 @@ from sqlalchemy.future import select
 async def create_meeting_attendee(
     db: AsyncSession, attendee: meeting_attendee_schemas.MeetingAttendeeCreate
 ) -> MeetingAttendee:
-    db_attendee = MeetingAttendee(**attendee.dict())
+    db_attendee = MeetingAttendee(**attendee.model_dump())
     db.add(db_attendee)
     await db.commit()
     await db.refresh(db_attendee)
