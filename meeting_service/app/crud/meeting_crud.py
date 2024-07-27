@@ -13,10 +13,14 @@ async def create_meeting(
     db.add(db_meeting)
     await db.commit()
     await db.refresh(db_meeting)
+
     if db_meeting.recurrence_id:
-        db_meeting = await db.get(
-            Meeting, db_meeting.id, options=[joinedload(Meeting.recurrence)]
+        db_meeting = await db.execute(
+            select(Meeting)
+            .options(joinedload(Meeting.recurrence))
+            .filter(Meeting.id == db_meeting.id)
         )
+        db_meeting = db_meeting.scalars().first()
     return db_meeting
 
 
