@@ -6,27 +6,26 @@ from pydantic import BaseModel, ConfigDict
 
 class TaskBase(BaseModel):
     model_config = ConfigDict(from_attributes=True)
-    title: str
-    description: str
-    due_date: Optional[datetime]
-    assignee_id: int
-    completed: bool
-    completed_date: Optional[datetime]
+    description: Optional[str] = None
+    due_date: Optional[datetime] = None
+    completed: Optional[bool] = False
+    completed_date: Optional[datetime] = None
 
 
 class TaskCreate(TaskBase):
-    pass
+    title: str
+    assignee_id: int
+    completed: bool
 
 
 class TaskUpdate(TaskBase):
-    pass
+    title: Optional[str] = None
+    assignee_id: Optional[int] = None
+    completed: Optional[bool] = None
 
 
 class Task(TaskBase):
-    id: int
+    title: str
     assignee_id: int
-
-
-class TaskResponse(TaskBase):
+    completed: bool
     id: int
-    user_id: int

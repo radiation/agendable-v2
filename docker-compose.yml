@@ -79,24 +79,6 @@ services:
     networks:
       - web
 
-  graphql_server:
-    build: ./graphql_server
-    command: node src/index.js
-    ports:
-      - "4000:4000"
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.apollo.rule=Host(`apollo.local`)"
-      - "traefik.http.routers.apollo.entrypoints=web"
-    environment:
-      MEETING_SERVICE_URL: http://meeting_service:8001
-      USER_SERVICE_URL: http://user_service:8000
-    depends_on:
-      - meeting_service
-      - user_service
-    networks:
-      - web
-
 networks:
   web:
   postgres:
