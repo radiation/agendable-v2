@@ -32,15 +32,20 @@ async def tables(engine):
 
 @pytest.fixture
 async def test_client(engine, tables):
-    async_session = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
+    async_session_factory = sessionmaker(
+        engine, class_=AsyncSession, expire_on_commit=False
+    )
 
     async def override_get_db():
-        async with async_session() as session:
+        async with async_session_factory() as session:
             yield session
 
     app.dependency_overrides[get_db] = override_get_db
 
+    # Providing both session and client
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://testserver"
     ) as client:
-        yield client
+        # Provide both the client and a fresh session for direct use in tests
+        async with async_session_factory() as session:
+            yield client, session

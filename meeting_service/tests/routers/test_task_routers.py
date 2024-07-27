@@ -17,9 +17,10 @@ guarantee the order of execution of tests.
 
 @pytest.mark.asyncio
 async def test_task_router_lifecycle(test_client):
+    client, db_session = test_client
 
     # Create a task
-    response = await test_client.post(
+    response = await client.post(
         "/tasks/",
         json=task_data,
     )
@@ -27,19 +28,19 @@ async def test_task_router_lifecycle(test_client):
     task_id = response.json()["id"]
 
     # List all tasks
-    response = await test_client.get("/tasks/")
+    response = await client.get("/tasks/")
     assert response.status_code == 200
     tasks = response.json()
     assert isinstance(tasks, list)
 
     # Get the task we created
-    response = await test_client.get(f"/tasks/{task_id}")
+    response = await client.get(f"/tasks/{task_id}")
     assert response.status_code == 200
     task = response.json()
     assert task["id"] == task_id
 
     # Update the task we created
-    response = await test_client.put(
+    response = await client.put(
         f"/tasks/{task_id}",
         json={
             "title": "Updated Task",
@@ -55,9 +56,9 @@ async def test_task_router_lifecycle(test_client):
     assert updated_task["title"] == "Updated Task"
 
     # Delete the task we created
-    response = await test_client.delete(f"/tasks/{task_id}")
+    response = await client.delete(f"/tasks/{task_id}")
     assert response.status_code == 204
 
     # Verify deletion
-    response = await test_client.get(f"/tasks/{task_id}")
+    response = await client.get(f"/tasks/{task_id}")
     assert response.status_code == 404

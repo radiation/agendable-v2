@@ -14,9 +14,10 @@ meeting_data = {
 
 @pytest.mark.asyncio
 async def test_meeting_router_lifecycle(test_client):
+    client, db_session = test_client
 
     # Create a meeting
-    response = await test_client.post(
+    response = await client.post(
         "/meetings/",
         json=meeting_data,
     )
@@ -26,25 +27,25 @@ async def test_meeting_router_lifecycle(test_client):
     meeting_id = data["id"]
 
     # List all meetings
-    response = await test_client.get("/meetings/")
+    response = await client.get("/meetings/")
     assert response.status_code == 200
     meetings = response.json()
     assert isinstance(meetings, list)
 
     # Get the meeting we created
-    response = await test_client.get(f"/meetings/{meeting_id}")
+    response = await client.get(f"/meetings/{meeting_id}")
     assert response.status_code == 200
     meeting = response.json()
     assert meeting["id"] == 1
     assert meeting["title"] == "Team Meeting"
 
     # Update the meeting we created
-    response = await test_client.post(
+    response = await client.post(
         "/meetings/",
         json=meeting_data,
     )
     meeting_id = response.json()["id"]
-    response = await test_client.put(
+    response = await client.put(
         f"/meetings/{meeting_id}",
         json={
             "title": "Updated Team Meeting",
@@ -63,19 +64,20 @@ async def test_meeting_router_lifecycle(test_client):
     assert updated_meeting["location"] == "New Location"
 
     # Delete the meeting we created
-    response = await test_client.delete("/meetings/1")
+    response = await client.delete("/meetings/1")
     assert response.status_code == 204
 
 
 @pytest.mark.asyncio
 async def test_create_meeting_with_recurrence_id(test_client):
+    client, db_session = test_client
 
     # Create a meeting recurrence
     meeting_recurrence_data = {
         "title": "Annual Meeting",
         "rrule": "FREQ=YEARLY;BYMONTH=6;BYMONTHDAY=24;BYHOUR=12;BYMINUTE=0",
     }
-    response = await test_client.post(
+    response = await client.post(
         "/meeting_recurrences/",
         json=meeting_recurrence_data,
     )
@@ -96,7 +98,7 @@ async def test_create_meeting_with_recurrence_id(test_client):
         "recurrence_id": meeting_recurrence_id,
     }
 
-    response = await test_client.post(
+    response = await client.post(
         "/meetings/",
         json=meeting_data,
     )
