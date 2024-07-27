@@ -38,15 +38,11 @@ async def get_meeting_recurrence(
 async def update_meeting_recurrence(
     db: AsyncSession,
     meeting_recurrence_id: int,
-    meeting_recurrence: meeting_recurrence_schemas.MeetingRecurrenceBase,
+    meeting_recurrence: meeting_recurrence_schemas.MeetingRecurrenceUpdate,
 ) -> MeetingRecurrence:
-    db_meeting_recurrence = await (
-        db.query(MeetingRecurrence)
-        .filter(MeetingRecurrence.id == meeting_recurrence_id)
-        .first()
-    )
+    db_meeting_recurrence = await get_meeting_recurrence(db, meeting_recurrence_id)
     if db_meeting_recurrence:
-        for key, value in meeting_recurrence.model_dump().items():
+        for key, value in meeting_recurrence.model_dump(exclude_unset=True).items():
             setattr(db_meeting_recurrence, key, value)
         await db.commit()
         await db.refresh(db_meeting_recurrence)
@@ -59,7 +55,7 @@ async def delete_meeting_recurrence(
     db_meeting_recurrence = await get_meeting_recurrence(db, meeting_recurrence_id)
     if db_meeting_recurrence:
         try:
-            db.delete(db_meeting_recurrence)
+            await db.delete(db_meeting_recurrence)
             await db.commit()
         except SQLAlchemyError as e:
             await db.rollback()
