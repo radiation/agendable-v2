@@ -16,7 +16,7 @@ TEST_DATABASE_URL = f"sqlite+aiosqlite:///{TEST_DATABASE_PATH}"
 async def engine():
     if os.path.exists(TEST_DATABASE_PATH):
         os.remove(TEST_DATABASE_PATH)
-    _engine = create_async_engine(TEST_DATABASE_URL, echo=True)
+    _engine = create_async_engine(TEST_DATABASE_URL, echo=False)
     yield _engine
     await _engine.dispose()
 

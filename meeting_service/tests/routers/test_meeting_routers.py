@@ -13,7 +13,9 @@ meeting_data = {
 
 
 @pytest.mark.asyncio
-async def test_create_meeting(test_client):
+async def test_meeting_router_lifecycle(test_client):
+
+    # Create a meeting
     response = await test_client.post(
         "/meetings/",
         json=meeting_data,
@@ -21,28 +23,22 @@ async def test_create_meeting(test_client):
     assert response.status_code == 200
     data = response.json()
     assert data["title"] == "Team Meeting"
+    meeting_id = data["id"]
 
-
-@pytest.mark.asyncio
-async def test_get_meetings(test_client):
+    # List all meetings
     response = await test_client.get("/meetings/")
     assert response.status_code == 200
     meetings = response.json()
     assert isinstance(meetings, list)
 
-
-@pytest.mark.asyncio
-async def test_get_meeting(test_client):
-    # Assuming there is a meeting with ID 1
-    response = await test_client.get("/meetings/1")
+    # Get the meeting we created
+    response = await test_client.get(f"/meetings/{meeting_id}")
     assert response.status_code == 200
     meeting = response.json()
     assert meeting["id"] == 1
     assert meeting["title"] == "Team Meeting"
 
-
-@pytest.mark.asyncio
-async def test_update_meeting(test_client):
+    # Update the meeting we created
     response = await test_client.post(
         "/meetings/",
         json=meeting_data,
@@ -66,8 +62,6 @@ async def test_update_meeting(test_client):
     assert updated_meeting["title"] == "Updated Team Meeting"
     assert updated_meeting["location"] == "New Location"
 
-
-@pytest.mark.asyncio
-async def test_delete_meeting(test_client):
+    # Delete the meeting we created
     response = await test_client.delete("/meetings/1")
     assert response.status_code == 204

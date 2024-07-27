@@ -2,6 +2,7 @@ from datetime import datetime
 
 from app.models import Task
 from app.schemas import task_schemas
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
@@ -32,7 +33,7 @@ async def update_task(
 ) -> Task:
     db_task = await get_task(db, task_id)
     if db_task:
-        for key, value in task.dict(exclude_unset=True).items():
+        for key, value in task.model_dump(exclude_unset=True).items():
             setattr(db_task, key, value)
         await db.commit()
         await db.refresh(db_task)
@@ -42,9 +43,13 @@ async def update_task(
 async def delete_task(db: AsyncSession, task_id: int) -> bool:
     db_task = await get_task(db, task_id)
     if db_task:
-        db.delete(db_task)
-        await db.commit()
-        return True
+        try:
+            await db.delete(db_task)
+            await db.commit()
+        except SQLAlchemyError as e:
+            await db.rollback()
+            raise e
+        return db_task
     return False
 
 
