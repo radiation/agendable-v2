@@ -20,38 +20,43 @@ async def get_meeting_tasks(
 ) -> list[MeetingTask]:
     stmt = select(MeetingTask).offset(skip).limit(limit)
     result = await db.execute(stmt)
-    tasks = result.scalars().all()
-    return tasks
+    meeting_tasks = result.scalars().all()
+    return meeting_tasks
 
 
-async def get_meeting_task(db: AsyncSession, task_id: int) -> MeetingTask:
-    result = await db.execute(select(MeetingTask).filter(MeetingTask.id == task_id))
+async def get_meeting_task(db: AsyncSession, meeting_task_id: int) -> MeetingTask:
+    result = await db.execute(
+        select(MeetingTask).filter(MeetingTask.id == meeting_task_id)
+    )
     task = result.scalars().first()
     return task
 
 
 async def update_meeting_task(
-    db: AsyncSession, task_id: int, task: meeting_task_schemas.MeetingTaskUpdate
+    db: AsyncSession,
+    meeting_task_id: int,
+    meeting_task: meeting_task_schemas.MeetingTaskUpdate,
 ) -> MeetingTask:
-    db_task = get_meeting_task(db, task_id)
-    if db_task:
-        for key, value in task.model_dump(exclude_unset=True).items():
-            setattr(db_task, key, value)
+    db_meeting_task = await get_meeting_task(db, meeting_task_id)
+    if db_meeting_task:
+        for key, value in meeting_task.model_dump(exclude_unset=True).items():
+            setattr(db_meeting_task, key, value)
         await db.commit()
-        await db.refresh(db_task)
-    return db_task
+        await db.refresh(db_meeting_task)
+    return db_meeting_task
 
 
-async def delete_meeting_task(db: AsyncSession, task_id: int) -> MeetingTask:
-    db_task = get_meeting_task(db, task_id)
-    if db_task:
+async def delete_meeting_task(db: AsyncSession, meeting_task_id: int) -> MeetingTask:
+    db_meeting_task = await get_meeting_task(db, meeting_task_id)
+    if db_meeting_task:
         try:
-            db.delete(db_task)
+            await db.delete(db_meeting_task)
             await db.commit()
         except SQLAlchemyError as e:
             await db.rollback()
             raise e
-        return db_task
+        return db_meeting_task
+
     else:
         return None
 

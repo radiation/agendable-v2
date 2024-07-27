@@ -39,7 +39,7 @@ async def update_meeting_attendee(
 ) -> MeetingAttendee:
     db_attendee = await get_meeting_attendee(db, attendee_id)
     if db_attendee:
-        for key, value in attendee.dict(exclude_unset=True).items():
+        for key, value in attendee.model_dump(exclude_unset=True).items():
             setattr(db_attendee, key, value)
         await db.commit()
         await db.refresh(db_attendee)
@@ -47,17 +47,17 @@ async def update_meeting_attendee(
 
 
 async def delete_meeting_attendee(
-    db: AsyncSession, attendee_id: int
+    db: AsyncSession, meeting_attendee_id: int
 ) -> MeetingAttendee:
-    db_attendee = await get_meeting_attendee(db, attendee_id)
-    if db_attendee:
+    db_meeting_attendee = await get_meeting_attendee(db, meeting_attendee_id)
+    if db_meeting_attendee:
         try:
-            db.delete(db_attendee)
+            await db.delete(db_meeting_attendee)
             await db.commit()
         except SQLAlchemyError as e:
             await db.rollback()
             raise e
-        return db_attendee
+        return db_meeting_attendee
     else:
         return None
 

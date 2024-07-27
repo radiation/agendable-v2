@@ -25,30 +25,38 @@ async def read_meeting_tasks(
 
 
 # Get a meeting task by ID
-@router.get("/{task_id}", response_model=schemas.MeetingTask)
+@router.get("/{meeting_task_id}", response_model=schemas.MeetingTask)
 async def get_meeting_task(
-    task_id: int, db: AsyncSession = Depends(db.get_db)
+    meeting_task_id: int, db: AsyncSession = Depends(db.get_db)
 ) -> schemas.MeetingTask:
-    task = await meeting_task_crud.get_meeting_task(db=db, task_id=task_id)
-    if task is None:
+    meeting_task = await meeting_task_crud.get_meeting_task(
+        db=db, meeting_task_id=meeting_task_id
+    )
+    if meeting_task is None:
         raise HTTPException(status_code=404, detail="Meeting task not found")
-    return task
+    return meeting_task
 
 
 # Update an existing meeting task
-@router.put("/{task_id}", response_model=schemas.MeetingTask)
+@router.put("/{meeting_task_id}", response_model=schemas.MeetingTask)
 async def update_meeting_task(
-    task_id: int, task: schemas.MeetingTaskUpdate, db: AsyncSession = Depends(db.get_db)
+    meeting_task_id: int,
+    meeting_task: schemas.MeetingTaskUpdate,
+    db: AsyncSession = Depends(db.get_db),
 ) -> schemas.MeetingTask:
     return await meeting_task_crud.update_meeting_task(
-        db=db, task_id=task_id, task=task
+        db=db, meeting_task_id=meeting_task_id, meeting_task=meeting_task
     )
 
 
 # Delete a meeting task
-@router.delete("/{task_id}", status_code=204)
-async def delete_meeting_task(task_id: int, db: AsyncSession = Depends(db.get_db)):
-    success = await meeting_task_crud.delete_meeting_task(db=db, task_id=task_id)
+@router.delete("/{meeting_task_id}", status_code=204)
+async def delete_meeting_task(
+    meeting_task_id: int, db: AsyncSession = Depends(db.get_db)
+):
+    success = await meeting_task_crud.delete_meeting_task(
+        db=db, meeting_task_id=meeting_task_id
+    )
     if not success:
         raise HTTPException(status_code=404, detail="Meeting task not found")
 

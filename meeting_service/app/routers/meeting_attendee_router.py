@@ -56,12 +56,12 @@ async def update_meeting_attendee(
 
 
 # Delete a meeting attendee
-@router.delete("/{attendee_id}", status_code=204)
+@router.delete("/{meeting_attendee_id}", status_code=204)
 async def delete_meeting_attendee(
-    attendee_id: int, db: AsyncSession = Depends(db.get_db)
+    meeting_attendee_id: int, db: AsyncSession = Depends(db.get_db)
 ):
     success = await meeting_attendee_crud.delete_meeting_attendee(
-        db=db, attendee_id=attendee_id
+        db=db, meeting_attendee_id=meeting_attendee_id
     )
     if not success:
         raise HTTPException(status_code=404, detail="Meeting attendee not found")
