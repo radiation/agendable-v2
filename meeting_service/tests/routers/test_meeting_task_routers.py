@@ -13,9 +13,10 @@ guarantee the order of execution of tests.
 
 @pytest.mark.asyncio
 async def test_task_router_lifecycle(test_client):
+    client, db_session = test_client
 
     # Create a meeting_task
-    response = await test_client.post(
+    response = await client.post(
         "/meeting_tasks/",
         json=meeting_task_data,
     )
@@ -23,19 +24,19 @@ async def test_task_router_lifecycle(test_client):
     meeting_task_id = response.json()["id"]
 
     # List all meeting_tasks
-    response = await test_client.get("/meeting_tasks/")
+    response = await client.get("/meeting_tasks/")
     assert response.status_code == 200
     meeting_tasks = response.json()
     assert isinstance(meeting_tasks, list)
 
     # Get the meeting_task we created
-    response = await test_client.get(f"/meeting_tasks/{meeting_task_id}")
+    response = await client.get(f"/meeting_tasks/{meeting_task_id}")
     assert response.status_code == 200
     meeting_task = response.json()
     assert meeting_task["id"] == meeting_task_id
 
     # Update the meeting_task we created
-    response = await test_client.put(
+    response = await client.put(
         f"/meeting_tasks/{meeting_task_id}",
         json={
             "id": meeting_task_id,
@@ -48,9 +49,9 @@ async def test_task_router_lifecycle(test_client):
     assert updated_meeting_task["meeting_id"] == 2
 
     # Delete the meeting_task we created
-    response = await test_client.delete(f"/meeting_tasks/{meeting_task_id}")
+    response = await client.delete(f"/meeting_tasks/{meeting_task_id}")
     assert response.status_code == 204
 
     # Verify deletion
-    response = await test_client.get(f"/meeting_tasks/{meeting_task_id}")
+    response = await client.get(f"/meeting_tasks/{meeting_task_id}")
     assert response.status_code == 404
