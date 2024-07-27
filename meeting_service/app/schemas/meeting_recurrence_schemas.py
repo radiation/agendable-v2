@@ -8,6 +8,7 @@ from pydantic import BaseModel, ConfigDict, field_validator
 class MeetingRecurrenceBase(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     rrule: str
+    title: str = ""
 
 
 class MeetingRecurrenceCreate(MeetingRecurrenceBase):
