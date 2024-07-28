@@ -1,5 +1,8 @@
 from app.models import MeetingRecurrence
-from app.schemas import meeting_recurrence_schemas
+from app.schemas.meeting_recurrence_schemas import (
+    MeetingRecurrenceCreate,
+    MeetingRecurrenceUpdate,
+)
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
@@ -7,7 +10,7 @@ from sqlalchemy.future import select
 
 async def create_meeting_recurrence(
     db: AsyncSession,
-    meeting_recurrence: meeting_recurrence_schemas.MeetingRecurrenceBase,
+    meeting_recurrence: MeetingRecurrenceCreate,
 ) -> MeetingRecurrence:
     db_meeting_recurrence = MeetingRecurrence(**meeting_recurrence.model_dump())
     db.add(db_meeting_recurrence)
@@ -28,9 +31,8 @@ async def get_meeting_recurrences(
 async def get_meeting_recurrence(
     db: AsyncSession, meeting_id: int
 ) -> MeetingRecurrence:
-    result = await db.execute(
-        select(MeetingRecurrence).filter(MeetingRecurrence.id == meeting_id)
-    )
+    stmt = select(MeetingRecurrence).filter(MeetingRecurrence.id == meeting_id)
+    result = await db.execute(stmt)
     recurrence = result.scalars().first()
     return recurrence
 
@@ -38,7 +40,7 @@ async def get_meeting_recurrence(
 async def update_meeting_recurrence(
     db: AsyncSession,
     meeting_recurrence_id: int,
-    meeting_recurrence: meeting_recurrence_schemas.MeetingRecurrenceUpdate,
+    meeting_recurrence: MeetingRecurrenceUpdate,
 ) -> MeetingRecurrence:
     db_meeting_recurrence = await get_meeting_recurrence(db, meeting_recurrence_id)
     if db_meeting_recurrence:

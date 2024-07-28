@@ -26,5 +26,5 @@ class MeetingRecurrenceUpdate(MeetingRecurrenceBase):
     pass
 
 
-class MeetingRecurrence(MeetingRecurrenceCreate):
+class MeetingRecurrenceRetrieve(MeetingRecurrenceBase):
     id: int

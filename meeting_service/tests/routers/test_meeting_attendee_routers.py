@@ -34,17 +34,19 @@ async def test_meeting_attendee_router_lifecycle(test_client):
     assert meeting_attendee["id"] == 1
 
     # Update the meeting we created
-    meeting_id = response.json()["id"]
+    meeting_attendee_id = response.json()["id"]
     response = await client.put(
-        f"/meeting_attendees/{meeting_id}",
+        f"/meeting_attendees/{meeting_attendee_id}",
         json={
             "meeting_id": 2,
             "user_id": 2,
             "is_scheduler": False,
         },
     )
+    print(response.text)
     assert response.status_code == 200
     updated_meeting_attendee = response.json()
+    print(response.text)
     assert updated_meeting_attendee["meeting_id"] == 2
 
     # Delete the meeting we created

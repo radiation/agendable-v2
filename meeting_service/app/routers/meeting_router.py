@@ -8,26 +8,26 @@ from sqlalchemy.ext.asyncio import AsyncSession
 router = APIRouter()
 
 # Create a new meeting
-@router.post("/", response_model=meeting_schemas.Meeting)
+@router.post("/", response_model=meeting_schemas.MeetingRetrieve)
 async def create_meeting(
     meeting: meeting_schemas.MeetingCreate, db: AsyncSession = Depends(db.get_db)
-) -> meeting_schemas.Meeting:
+) -> meeting_schemas.MeetingRetrieve:
     return await meeting_crud.create_meeting(db=db, meeting=meeting)
 
 
 # List all meetings
-@router.get("/", response_model=list[meeting_schemas.Meeting])
+@router.get("/", response_model=list[meeting_schemas.MeetingRetrieve])
 async def get_meetings(
     skip: int = 0, limit: int = 10, db: AsyncSession = Depends(db.get_db)
-) -> list[meeting_schemas.Meeting]:
+) -> list[meeting_schemas.MeetingRetrieve]:
     return await meeting_crud.get_meetings(db=db, skip=skip, limit=limit)
 
 
 # Get a meeting by ID
-@router.get("/{meeting_id}", response_model=meeting_schemas.Meeting)
+@router.get("/{meeting_id}", response_model=meeting_schemas.MeetingRetrieve)
 async def get_meeting(
     meeting_id: int, db: AsyncSession = Depends(db.get_db)
-) -> meeting_schemas.Meeting:
+) -> meeting_schemas.MeetingRetrieve:
     meeting = await meeting_crud.get_meeting(db=db, meeting_id=meeting_id)
     if not meeting:
         raise HTTPException(status_code=404, detail="Meeting not found")
@@ -35,12 +35,12 @@ async def get_meeting(
 
 
 # Update an existing meeting
-@router.put("/{meeting_id}", response_model=meeting_schemas.Meeting)
+@router.put("/{meeting_id}", response_model=meeting_schemas.MeetingRetrieve)
 async def update_meeting(
     meeting_id: int,
     meeting: meeting_schemas.MeetingUpdate,
     db: AsyncSession = Depends(db.get_db),
-) -> meeting_schemas.Meeting:
+) -> meeting_schemas.MeetingRetrieve:
     updated_meeting = await meeting_crud.update_meeting(
         db=db, meeting_id=meeting_id, meeting=meeting
     )
@@ -71,13 +71,13 @@ async def complete_meeting(meeting_id: int, db: AsyncSession = Depends(db.get_db
 # Add a recurrence to a meeting
 @router.post(
     "/{meeting_id}/add_recurrence/{recurrence_id}",
-    response_model=meeting_schemas.Meeting,
+    response_model=meeting_schemas.MeetingRetrieve,
 )
 async def add_recurrence(
     meeting_id: int,
     recurrence_id: int,
     db: AsyncSession = Depends(db.get_db),
-) -> meeting_schemas.Meeting:
+) -> meeting_schemas.MeetingRetrieve:
     meeting = await meeting_crud.add_recurrence(
         db=db, meeting_id=meeting_id, recurrence_id=recurrence_id
     )
@@ -90,7 +90,7 @@ async def add_recurrence(
 @router.get("/next/{meeting_id}")
 async def next_meeting(
     meeting_id: int, db: AsyncSession = Depends(db.get_db)
-) -> meeting_schemas.Meeting:
+) -> meeting_schemas.MeetingRetrieve:
     current_meeting = await meeting_crud.get_meeting(db, meeting_id)
     next_meeting = await meeting_service.get_subsequent_meeting(
         db, current_meeting, after_date=current_meeting.end_date

@@ -1,14 +1,12 @@
 from app.models import Meeting, MeetingRecurrence
-from app.schemas import meeting_schemas
+from app.schemas.meeting_schemas import MeetingCreate, MeetingUpdate
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy.orm import joinedload
 
 
-async def create_meeting(
-    db: AsyncSession, meeting: meeting_schemas.MeetingCreate
-) -> Meeting:
+async def create_meeting(db: AsyncSession, meeting: MeetingCreate) -> Meeting:
     db_meeting = Meeting(**meeting.model_dump())
     db.add(db_meeting)
     await db.commit()
@@ -50,7 +48,7 @@ async def get_meeting(db: AsyncSession, meeting_id: int) -> Meeting:
 
 
 async def update_meeting(
-    db: AsyncSession, meeting_id: int, meeting: meeting_schemas.MeetingUpdate
+    db: AsyncSession, meeting_id: int, meeting: MeetingUpdate
 ) -> Meeting:
     db_meeting = await get_meeting(db, meeting_id)
     if db_meeting:
@@ -78,9 +76,8 @@ async def delete_meeting(db: AsyncSession, meeting_id: int) -> Meeting:
 async def get_meeting_recurrence_by_meeting(
     db: AsyncSession, meeting_id: int
 ) -> MeetingRecurrence:
-    result = await db.execute(
-        select(MeetingRecurrence).filter(MeetingRecurrence.meeting_id == meeting_id)
-    )
+    stmt = select(MeetingRecurrence).filter(MeetingRecurrence.meeting_id == meeting_id)
+    result = await db.execute(stmt)
     recurrence = result.scalars().first()
     return recurrence
 
@@ -102,12 +99,11 @@ async def add_recurrence(
         raise ValueError("Meeting not found")
 
     if meeting.recurrence_id is not None:
-        # We don't want to add a recurrence to a meeting that already has one
+        # If we're changing the recurrence, we should just update the meeting
         return meeting
 
-    recurrence_exists = await db.scalar(
-        select(MeetingRecurrence.id).filter(MeetingRecurrence.id == recurrence_id)
-    )
+    stmt = select(MeetingRecurrence.id).filter(MeetingRecurrence.id == recurrence_id)
+    recurrence_exists = await db.scalar(stmt)
 
     if not recurrence_exists:
         raise ValueError("Recurrence not found")

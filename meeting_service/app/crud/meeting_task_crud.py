@@ -1,13 +1,11 @@
-from app.models import MeetingTask
-from app.schemas import meeting_task_schemas
+from app.models import MeetingTask, Task
+from app.schemas.meeting_task_schemas import MeetingTaskCreate, MeetingTaskUpdate
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
 
-async def create_meeting_task(
-    db: AsyncSession, task: meeting_task_schemas.MeetingTaskCreate
-) -> MeetingTask:
+async def create_meeting_task(db: AsyncSession, task: MeetingTaskCreate) -> MeetingTask:
     db_task = MeetingTask(**task.model_dump())
     db.add(db_task)
     await db.commit()
@@ -25,9 +23,8 @@ async def get_meeting_tasks(
 
 
 async def get_meeting_task(db: AsyncSession, meeting_task_id: int) -> MeetingTask:
-    result = await db.execute(
-        select(MeetingTask).filter(MeetingTask.id == meeting_task_id)
-    )
+    stmt = select(MeetingTask).filter(MeetingTask.id == meeting_task_id)
+    result = await db.execute(stmt)
     task = result.scalars().first()
     return task
 
@@ -35,7 +32,7 @@ async def get_meeting_task(db: AsyncSession, meeting_task_id: int) -> MeetingTas
 async def update_meeting_task(
     db: AsyncSession,
     meeting_task_id: int,
-    meeting_task: meeting_task_schemas.MeetingTaskUpdate,
+    meeting_task: MeetingTaskUpdate,
 ) -> MeetingTask:
     db_meeting_task = await get_meeting_task(db, meeting_task_id)
     if db_meeting_task:
@@ -56,13 +53,16 @@ async def delete_meeting_task(db: AsyncSession, meeting_task_id: int) -> Meeting
             await db.rollback()
             raise e
         return db_meeting_task
-
     else:
         return None
 
 
-async def get_tasks_by_meeting(db: AsyncSession, meeting_id: int) -> list[MeetingTask]:
-    result = await db.execute(
-        select(MeetingTask).where(MeetingTask.meeting_id == meeting_id)
+async def get_tasks_by_meeting(db: AsyncSession, meeting_id: int) -> list[Task]:
+    stmt = (
+        select(Task)
+        .join(MeetingTask, MeetingTask.task_id == Task.id)
+        .where(MeetingTask.meeting_id == meeting_id)
     )
-    return result.scalars().all()
+    result = await db.execute(stmt)
+    tasks = result.scalars().all()
+    return tasks

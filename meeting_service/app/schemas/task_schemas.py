@@ -24,7 +24,7 @@ class TaskUpdate(TaskBase):
     completed: Optional[bool] = None
 
 
-class Task(TaskBase):
+class TaskRetrieve(TaskBase):
     title: str
     assignee_id: int
     completed: bool

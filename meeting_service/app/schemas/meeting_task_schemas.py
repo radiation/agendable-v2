@@ -15,5 +15,5 @@ class MeetingTaskUpdate(MeetingTaskBase):
     pass
 
 
-class MeetingTask(MeetingTaskBase):
+class MeetingTaskRetrieve(MeetingTaskBase):
     id: int

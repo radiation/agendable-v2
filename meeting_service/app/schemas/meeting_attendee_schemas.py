@@ -18,5 +18,5 @@ class MeetingAttendeeUpdate(MeetingAttendeeBase):
     pass
 
 
-class MeetingAttendee(MeetingAttendeeBase):
+class MeetingAttendeeRetrieve(MeetingAttendeeBase):
     id: int
