@@ -94,7 +94,7 @@ async def complete_meeting(db: AsyncSession, meeting_id: int) -> Meeting:
 async def add_recurrence(
     db: AsyncSession, meeting_id: int, recurrence_id: int
 ) -> Meeting:
-    meeting = get_meeting(db, meeting_id)
+    meeting = await get_meeting(db, meeting_id)
     if not meeting:
         raise ValueError("Meeting not found")
 

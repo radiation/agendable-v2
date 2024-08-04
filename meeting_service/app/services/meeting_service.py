@@ -38,7 +38,7 @@ async def get_subsequent_meeting(
 
 async def create_subsequent_meeting(db: AsyncSession, meeting: Meeting) -> Meeting:
     if not meeting or not meeting.recurrence:
-        return None  # Handle error if meeting not found or recurrence not set
+        return None  # TODO Handle error if meeting not found or recurrence not set
 
     next_meeting_date = await meeting_recurrence_service.get_next_meeting_date(
         db, meeting.recurrence_id, meeting.start_date
@@ -63,6 +63,7 @@ async def create_subsequent_meeting(db: AsyncSession, meeting: Meeting) -> Meeti
         notes=meeting.notes,
         num_reschedules=0,
         reminder_sent=False,
+        recurrence_id=meeting.recurrence_id,
     )
 
     # Use the meeting_crud to create the new meeting

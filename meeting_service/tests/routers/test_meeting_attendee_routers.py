@@ -43,10 +43,8 @@ async def test_meeting_attendee_router_lifecycle(test_client):
             "is_scheduler": False,
         },
     )
-    print(response.text)
     assert response.status_code == 200
     updated_meeting_attendee = response.json()
-    print(response.text)
     assert updated_meeting_attendee["meeting_id"] == 2
 
     # Delete the meeting we created

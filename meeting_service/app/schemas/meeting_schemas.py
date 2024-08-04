@@ -12,6 +12,7 @@ class MeetingBase(BaseModel):
     notes: Optional[str] = None
     num_reschedules: Optional[int] = None
     reminder_sent: Optional[bool] = None
+    completed: Optional[bool] = None
 
 
 class MeetingCreate(MeetingBase):

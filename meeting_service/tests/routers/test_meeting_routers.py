@@ -111,3 +111,61 @@ async def test_create_meeting_with_recurrence_id(test_client):
         == "FREQ=YEARLY;BYMONTH=6;BYMONTHDAY=24;BYHOUR=12;BYMINUTE=0"
     )
     assert meeting["recurrence"]["title"] == "Annual Meeting"
+
+
+@pytest.mark.asyncio
+async def test_complete_meeting(test_client):
+    client, db_session = test_client
+
+    # Create a meeting
+    response = await client.post(
+        "/meetings/",
+        json=meeting_data,
+    )
+    meeting = response.json()
+    meeting_id = meeting["id"]
+
+    # Complete the meeting
+    response = await client.post(f"/meetings/{meeting_id}/complete/")
+    assert response.status_code == 200
+
+    # Get the meeting
+    response = await client.get(f"/meetings/{meeting_id}")
+    meeting = response.json()
+    assert meeting["completed"] is True
+
+
+@pytest.mark.asyncio
+async def test_get_next_meeting(test_client):
+    client, db_session = test_client
+
+    # Create a meeting
+    response = await client.post(
+        "/meetings/",
+        json=meeting_data,
+    )
+    meeting = response.json()
+    meeting_id = meeting["id"]
+
+    # Add a recurrence to the meeting
+    meeting_recurrence_data = {
+        "title": "Annual Meeting",
+        "rrule": "FREQ=YEARLY;BYMONTH=6;BYMONTHDAY=24;BYHOUR=12;BYMINUTE=0",
+    }
+    response = await client.post(
+        "/meeting_recurrences/",
+        json=meeting_recurrence_data,
+    )
+    meeting_recurrence = response.json()
+    assert meeting_recurrence["title"] == "Annual Meeting"
+    meeting_recurrence_id = meeting_recurrence["id"]
+    response = await client.post(
+        f"/meetings/{meeting_id}/add_recurrence/{meeting_recurrence_id}",
+    )
+    meeting = response.json()
+
+    # Get the next meeting
+    response = await client.get(f"/meetings/{meeting_id}/next/")
+    assert response.status_code == 200
+    next_meeting = response.json()
+    assert next_meeting["recurrence"] == meeting["recurrence"]

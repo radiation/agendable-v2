@@ -87,7 +87,7 @@ async def add_recurrence(
 
 
 # Get the next meeting after a given meeting
-@router.get("/next/{meeting_id}")
+@router.get("/{meeting_id}/next/", response_model=meeting_schemas.MeetingRetrieve)
 async def next_meeting(
     meeting_id: int, db: AsyncSession = Depends(db.get_db)
 ) -> meeting_schemas.MeetingRetrieve:
