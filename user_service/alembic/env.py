@@ -1,40 +1,27 @@
-from __future__ import with_statement
-
-from logging.config import fileConfig
+import os
 
 from alembic import context
 from app.models import Base
-from sqlalchemy import engine_from_config, pool
+from sqlalchemy import create_engine
 
-config = context.config
-fileConfig(config.config_file_name)
-
-target_metadata = Base.metadata
-
-
-def run_migrations_offline():
-    url = config.get_main_option("sqlalchemy.url")
-    context.configure(url=url, target_metadata=target_metadata, literal_binds=True)
-
-    with context.begin_transaction():
-        context.run_migrations()
+# config = context.config
+DATABASE_URL = os.getenv(
+    "USER_ALEMBIC_DB_URL",
+    "postgresql://agendable:agendable@localhost:5432/user_db",
+)
+connectable = create_engine(DATABASE_URL)
 
 
 def run_migrations_online():
-    connectable = engine_from_config(
-        config.get_section(config.config_ini_section),
-        prefix="sqlalchemy.",
-        poolclass=pool.NullPool,
-    )
-
+    """Run migrations in 'online' mode with an established connection."""
     with connectable.connect() as connection:
-        context.configure(connection=connection, target_metadata=target_metadata)
+        context.configure(connection=connection, target_metadata=Base.metadata)
 
         with context.begin_transaction():
             context.run_migrations()
 
 
 if context.is_offline_mode():
-    run_migrations_offline()
+    raise Exception("Offline mode not supported here")
 else:
     run_migrations_online()

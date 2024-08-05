@@ -7,8 +7,9 @@ from sqlalchemy import create_engine
 # config = context.config
 DATABASE_URL = os.getenv(
     "MEETING_ALEMBIC_DB_URL",
-    "postgresql://agendable:agendable@localhost:5432/meeting_db",
+    "postgresql://user:password@postgres/meeting_db",
 )
+print("Connecting to database URL:", DATABASE_URL)
 connectable = create_engine(DATABASE_URL)
 
 
