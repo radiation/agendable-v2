@@ -11,7 +11,6 @@ COPY ./app /app
 # Copy Alembic and migration scripts to a separate directory
 COPY ./alembic /migrations/alembic
 COPY ./alembic.ini /migrations/alembic.ini
-COPY ./run_migrations.sh /migrations/run_migrations.sh
 COPY ./entrypoint.sh /entrypoint.sh
 
 ENV PYTHONPATH=/app
