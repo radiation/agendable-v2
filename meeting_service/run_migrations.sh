@@ -23,16 +23,7 @@ if [ "$#" -lt 1 ]; then
 fi
 
 command=$1
-
-# Determine the database URL based on the service directory
-if [[ "$PWD" == *"user_service"* ]]; then
-  db_url="postgresql+asyncpg://agendable:agendable@postgres:5432/user_db"
-elif [[ "$PWD" == *"meeting_service"* ]]; then
-  db_url="postgresql+asyncpg://agendable:agendable@postgres:5432/meeting_db"
-else
-  echo "Unknown service directory: $PWD"
-  exit 1
-fi
+db_url="postgresql://user:password@postgres/meeting_db"
 
 if [ "$command" = "generate" ]; then
   if [ -z "$2" ]; then
