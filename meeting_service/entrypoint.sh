@@ -2,7 +2,7 @@
 
 # Navigate to the migrations directory and run the migrations
 cd /migrations
-./run_migrations.sh apply
+alembic -c ./alembic.ini upgrade head
 
 # Navigate back to the app directory
 cd /app

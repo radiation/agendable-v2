@@ -6,10 +6,10 @@ from sqlalchemy import create_engine
 
 # config = context.config
 DATABASE_URL = os.getenv(
-    "MEETING_ALEMBIC_DB_URL",
+    "MEETING_DB_URL",
     "postgresql://user:password@postgres/meeting_db",
-)
-print("Connecting to database URL:", DATABASE_URL)
+).replace("+asyncpg", "")
+
 connectable = create_engine(DATABASE_URL)
 
 
