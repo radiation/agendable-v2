@@ -1,0 +1,8 @@
+fastapi
+fastapi-users[sqlalchemy,oauth]
+uvicorn[standard]
+aiosqlite
+pre-commit==3.7.1
+black==24.4.2
+isort==5.13.2
+ruff==0.5.1
