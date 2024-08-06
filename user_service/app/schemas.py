@@ -1,29 +1,15 @@
-from datetime import datetime
-from typing import Optional
+import uuid
 
-from pydantic import BaseModel, EmailStr, Field
-
-
-class UserBase(BaseModel):
-    email: EmailStr
-    first_name: Optional[str] = Field(None, max_length=30)
-    last_name: Optional[str] = Field(None, max_length=150)
-    is_staff: bool = False
-    is_superuser: bool = False
-    is_active: bool = True
-    date_joined: Optional[datetime] = None
+from fastapi_users import schemas
 
 
-class UserCreate(UserBase):
-    password: str
+class UserRead(schemas.BaseUser[uuid.UUID]):
+    pass
 
 
-class UserUpdate(UserBase):
-    password: Optional[str] = None
+class UserCreate(schemas.BaseUserCreate):
+    pass
 
 
-class User(UserBase):
-    id: str
-
-    class Config:
-        orm_mode = True
+class UserUpdate(schemas.BaseUserUpdate):
+    pass
