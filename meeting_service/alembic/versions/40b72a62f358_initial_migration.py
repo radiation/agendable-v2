@@ -1,8 +1,8 @@
-"""Initial tables
+"""Initial migration
 
-Revision ID: a1d98bec6a46
+Revision ID: 40b72a62f358
 Revises:
-Create Date: 2024-07-13 11:14:25.731685
+Create Date: 2024-08-17 21:35:35.865580
 
 """
 from typing import Sequence, Union
@@ -11,7 +11,7 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision: str = "a1d98bec6a46"
+revision: str = "40b72a62f358"
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -22,12 +22,14 @@ def upgrade() -> None:
     op.create_table(
         "meeting_recurrences",
         sa.Column("id", sa.Integer(), nullable=False),
-        sa.Column("frequency", sa.Integer(), nullable=True),
-        sa.Column("week_day", sa.Integer(), nullable=True),
-        sa.Column("month_week", sa.Integer(), nullable=True),
-        sa.Column("interval", sa.Integer(), nullable=True),
-        sa.Column("end_recurrence", sa.DateTime(), nullable=True),
-        sa.Column("created_at", sa.DateTime(), nullable=True),
+        sa.Column("title", sa.String(length=100), nullable=True),
+        sa.Column("rrule", sa.String(), nullable=False),
+        sa.Column(
+            "created_at",
+            sa.DateTime(timezone=True),
+            server_default=sa.text("now()"),
+            nullable=True,
+        ),
         sa.PrimaryKeyConstraint("id"),
     )
     op.create_table(
@@ -36,10 +38,15 @@ def upgrade() -> None:
         sa.Column("assignee_id", sa.Integer(), nullable=True),
         sa.Column("title", sa.String(length=100), nullable=True),
         sa.Column("description", sa.String(length=1000), nullable=True),
-        sa.Column("due_date", sa.DateTime(), nullable=True),
+        sa.Column("due_date", sa.DateTime(timezone=True), nullable=True),
         sa.Column("completed", sa.Boolean(), nullable=True),
-        sa.Column("completed_date", sa.DateTime(), nullable=True),
-        sa.Column("created_at", sa.DateTime(), nullable=True),
+        sa.Column("completed_date", sa.DateTime(timezone=True), nullable=True),
+        sa.Column(
+            "created_at",
+            sa.DateTime(timezone=True),
+            server_default=sa.text("now()"),
+            nullable=True,
+        ),
         sa.PrimaryKeyConstraint("id"),
     )
     op.create_table(
@@ -47,14 +54,20 @@ def upgrade() -> None:
         sa.Column("id", sa.Integer(), nullable=False),
         sa.Column("recurrence_id", sa.Integer(), nullable=True),
         sa.Column("title", sa.String(length=100), nullable=True),
-        sa.Column("start_date", sa.DateTime(), nullable=True),
-        sa.Column("end_date", sa.DateTime(), nullable=True),
+        sa.Column("start_date", sa.DateTime(timezone=True), nullable=True),
+        sa.Column("end_date", sa.DateTime(timezone=True), nullable=True),
         sa.Column("duration", sa.Integer(), nullable=True),
         sa.Column("location", sa.String(length=100), nullable=True),
         sa.Column("notes", sa.String(), nullable=True),
         sa.Column("num_reschedules", sa.Integer(), nullable=True),
         sa.Column("reminder_sent", sa.Boolean(), nullable=True),
-        sa.Column("created_at", sa.DateTime(), nullable=True),
+        sa.Column("completed", sa.Boolean(), nullable=True),
+        sa.Column(
+            "created_at",
+            sa.DateTime(timezone=True),
+            server_default=sa.text("now()"),
+            nullable=True,
+        ),
         sa.ForeignKeyConstraint(
             ["recurrence_id"],
             ["meeting_recurrences.id"],
@@ -67,6 +80,12 @@ def upgrade() -> None:
         sa.Column("meeting_id", sa.Integer(), nullable=True),
         sa.Column("user_id", sa.Integer(), nullable=True),
         sa.Column("is_scheduler", sa.Boolean(), nullable=True),
+        sa.Column(
+            "created_at",
+            sa.DateTime(timezone=True),
+            server_default=sa.text("now()"),
+            nullable=True,
+        ),
         sa.ForeignKeyConstraint(
             ["meeting_id"],
             ["meetings.id"],
@@ -78,6 +97,12 @@ def upgrade() -> None:
         sa.Column("id", sa.Integer(), nullable=False),
         sa.Column("meeting_id", sa.Integer(), nullable=True),
         sa.Column("task_id", sa.Integer(), nullable=True),
+        sa.Column(
+            "created_at",
+            sa.DateTime(timezone=True),
+            server_default=sa.text("now()"),
+            nullable=True,
+        ),
         sa.ForeignKeyConstraint(
             ["meeting_id"],
             ["meetings.id"],
