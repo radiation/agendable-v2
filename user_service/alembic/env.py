@@ -8,7 +8,7 @@ config = context.config
 
 
 def get_url():
-    url = os.getenv("MEETING_DB_URL", "postgresql://user:password@postgres/user_db")
+    url = os.getenv("USER_DB_URL", "postgresql://user:password@postgres/user_db")
     return url.replace("+asyncpg", "")  # Alembic doesn't support asyncpg
 
 
@@ -19,6 +19,8 @@ def run_migrations_online():
         prefix="sqlalchemy.",
         poolclass=pool.NullPool,
     )
+
+    print(f"Online - URL: {get_url()}")
 
     with connectable.connect() as connection:
         context.configure(connection=connection, target_metadata=Base.metadata)
@@ -35,6 +37,8 @@ def run_migrations_offline():
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
     )
+
+    print(f"Offline - URL: {get_url()}")
 
     with context.begin_transaction():
         context.run_migrations()
