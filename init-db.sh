@@ -7,7 +7,7 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "postgres" <<-EOSQL
 EOSQL
 echo "Creating Kong database..."
 psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "postgres" <<-EOSQL
-    CREATE DATABASE kong_db;
-    GRANT ALL PRIVILEGES ON DATABASE kong_db TO user;
+  CREATE DATABASE kong_db;
+  GRANT ALL PRIVILEGES ON DATABASE kong_db TO "$POSTGRES_USER";
 EOSQL
 echo "Database created."
