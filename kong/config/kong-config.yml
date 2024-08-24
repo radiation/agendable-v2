@@ -1,0 +1,61 @@
+services:
+  - name: meeting_service
+    url: ${MEETING_SERVICE_URL}
+    routes:
+      - name: meetings_route
+        paths:
+          - /meetings
+        strip_path: false
+        plugins:
+          - name: jwt
+
+      - name: tasks_route
+        paths:
+          - /tasks
+        strip_path: false
+        plugins:
+          - name: jwt
+
+      - name: meeting_tasks_route
+        paths:
+          - /meeting_tasks
+        strip_path: false
+        plugins:
+          - name: jwt
+
+      - name: meeting_attendees_route
+        paths:
+          - /meeting_attendees
+        strip_path: false
+        plugins:
+          - name: jwt
+
+      - name: meeting_recurrences_route
+        paths:
+          - /meeting_recurrences
+        strip_path: false
+        plugins:
+          - name: jwt
+
+  - name: user_service
+    url: ${USER_SERVICE_URL}
+    routes:
+      - name: user_service_route
+        paths:
+          - /users
+        plugins:
+          - name: jwt
+
+      - name: auth_route
+        paths:
+          - /auth
+        plugins:
+          - name: jwt
+
+consumers:
+  - username: user123
+    credentials:
+      - name: jwt
+        attributes:
+          key: "your-jwt-key"
+          secret: "your-jwt-secret"
