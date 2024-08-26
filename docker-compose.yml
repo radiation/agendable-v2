@@ -25,8 +25,6 @@ services:
     build:
       context: ./user_service
     command: uvicorn main:app --host 0.0.0.0 --port ${USER_SERVICE_PORT} --reload
-    ports:
-      - "${USER_SERVICE_PORT}:${USER_SERVICE_PORT}"
     environment:
       - DATABASE_URL=${USER_DB_URL}
       - PYTHONPATH=/
@@ -45,8 +43,6 @@ services:
     build:
       context: ./meeting_service
     command: uvicorn main:app --host 0.0.0.0 --port ${MEETING_SERVICE_PORT} --reload
-    ports:
-      - "${MEETING_SERVICE_PORT}:${MEETING_SERVICE_PORT}"
     environment:
       - DATABASE_URL=${MEETING_DB_URL}
       - PYTHONPATH=/
