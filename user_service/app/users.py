@@ -1,17 +1,38 @@
 import uuid
-from typing import Optional
+from typing import Dict, Optional
 
+import jwt
 from app.db import User, get_user_db
 from fastapi import Depends, Request
 from fastapi_users import BaseUserManager, FastAPIUsers, UUIDIDMixin
-from fastapi_users.authentication import (
-    AuthenticationBackend,
-    BearerTransport,
-    JWTStrategy,
-)
+from fastapi_users.authentication import BearerTransport, JWTAuthentication
 from fastapi_users.db import SQLAlchemyUserDatabase
 
 SECRET = "SECRET"
+KID = "global_key"
+
+# Custom JWT Auth class to add key id to the header for Kong validation
+class CustomJWTAuthentication(JWTAuthentication):
+    def __init__(
+        self,
+        secret: str,
+        lifetime_seconds: int,
+        tokenUrl: str,
+        algorithm: str = "HS256",
+        kid: Optional[str] = None,
+    ):
+        super().__init__(secret, lifetime_seconds, tokenUrl, algorithm)
+        self.kid = kid
+
+    def _generate_token(self, user_id: str, data: Dict[str, str]) -> str:
+        to_encode = data.copy()
+        to_encode.update({"sub": str(user_id)})
+        header = {"alg": self.algorithm}
+        if self.kid:
+            header["kid"] = self.kid
+        return jwt.encode(
+            to_encode, self.secret, algorithm=self.algorithm, headers=header
+        )
 
 
 class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
@@ -38,17 +59,14 @@ async def get_user_manager(user_db: SQLAlchemyUserDatabase = Depends(get_user_db
 
 bearer_transport = BearerTransport(tokenUrl="auth/jwt/login")
 
-
-def get_jwt_strategy() -> JWTStrategy:
-    return JWTStrategy(secret=SECRET, lifetime_seconds=3600)
-
-
-auth_backend = AuthenticationBackend(
-    name="jwt",
-    transport=bearer_transport,
-    get_strategy=get_jwt_strategy,
+auth_backend = CustomJWTAuthentication(
+    secret=SECRET,
+    lifetime_seconds=3600,
+    tokenUrl="auth/jwt/login",
+    algorithm="HS256",
+    kid=KID,
 )
 
 fastapi_users = FastAPIUsers[User, uuid.UUID](get_user_manager, [auth_backend])
 
-current_active_user = fastapi_users.current_user(active=True)
+current_active_user = fastapi_users.current_user

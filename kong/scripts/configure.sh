@@ -1,6 +1,21 @@
 #!/bin/sh
 
-echo "Adding services & routes to ${KONG_URL}..."
+echo "Adding configuration to ${KONG_URL}..."
+
+##############
+# Auth Setup #
+##############
+
+# JWT Plugin
+curl -i -X POST ${KONG_URL}/plugins/ \
+    --data "name=jwt" \
+    --data "config.claims_to_verify=exp"
+
+# Key-Auth Config
+curl -i -X POST ${KONG_URL}/jwts \
+    --data "algorithm=HS256" \
+    --data "key=${GLOBAL_KEY}" \
+    --data "secret=${GLOBAL_SECRET}"
 
 ################
 # User Service #
